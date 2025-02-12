@@ -61,8 +61,8 @@
             "development": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environments.ts",
-                  "with": "src/environments/environments.dev.ts"
+                  "replace": "src/environments/environments.prod.ts",
+                  "with": "src/environments/environments.ts"
                 }
               ],
               "optimization": false,
