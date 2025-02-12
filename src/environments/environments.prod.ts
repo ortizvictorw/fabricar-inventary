@@ -1,12 +1,12 @@
 export const environment = {
-  production: true,
+  production: false,
   firebaseConfig: {
-    apiKey: process.env['NG_APP_FIREBASE_API_KEY'],
-    authDomain: process.env['NG_APP_FIREBASE_AUTH_DOMAIN'],
-    projectId: process.env['NG_APP_FIREBASE_PROJECT_ID'],
-    storageBucket: process.env['NG_APP_FIREBASE_STORAGE_BUCKET'],
-    messagingSenderId: process.env['NG_APP_FIREBASE_MESSAGING_SENDER_ID'],
-    appId: process.env['NG_APP_FIREBASE_APP_ID']
+    apiKey: "AIzaSyDFj3iclRnBAHTx6IQnYzWa2roTzM1nQoE",
+    authDomain: "fabricarabertura.firebaseapp.com",
+    projectId: "fabricarabertura",
+    storageBucket: "fabricarabertura.firebasestorage.app",
+    messagingSenderId: "922689861265",
+    appId: "1:922689861265:web:6d837b043491ab5b54f130"
   },
   whitelist: ["fabricar.aberturas.daniel@gmail.com"]
 };
