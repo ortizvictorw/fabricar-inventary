@@ -8,5 +8,5 @@ export const environment = {
     messagingSenderId: "922689861265",
     appId: "1:922689861265:web:6d837b043491ab5b54f130"
   },
-  whitelist: ["fabricar.aberturas.daniel@gmail.com"]
+  whitelist: ["fabricar.aberturas.daniel@gmail.com, ortiz.victor.w@gmail.com"]
 };
