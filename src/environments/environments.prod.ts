@@ -8,5 +8,5 @@ export const environment = {
     messagingSenderId: process.env['FIREBASE_MESSAGING_SENDER_ID'] || '',
     appId: process.env['FIREBASE_APP_ID'] || ''
   },
-  whitelist: []
+  whitelist: ["fabricar.aberturas.daniel@gmail.com"]
 };
