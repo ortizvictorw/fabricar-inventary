@@ -7,6 +7,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
+
 // Project-specific imports
 import { routes } from './app.routes';
 import { environment } from '../environments/environments'; // ✅ Import dinámico
