@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, user, User, signInWithPopup, GoogleAuthProvider } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environment';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'

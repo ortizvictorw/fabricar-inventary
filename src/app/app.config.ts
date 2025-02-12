@@ -9,18 +9,17 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
 // Project-specific imports
 import { routes } from './app.routes';
-import { environment } from '../../environment';
+import { environment } from '../environments/environments'; // ✅ Import dinámico
 import { getAuth, provideAuth } from '@angular/fire/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)), // ✅ Usa el entorno correcto
     provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth()),
     provideAnimations(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(),
-    provideAuth(() => getAuth())
-
   ],
 };
