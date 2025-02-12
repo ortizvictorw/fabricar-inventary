@@ -1,0 +1,111 @@
+<div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+    
+    <!-- Encabezado y Filtro -->
+    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
+      <div>
+        <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900 mb-1">
+          Listado de Productos
+        </h6>
+      </div>
+      <div>
+        <button 
+        (click)="toggleOpen()" 
+        [attr.aria-expanded]="open"
+        aria-haspopup="menu"
+        class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-8 max-w-[32px] h-8 max-h-[32px] rounded-lg text-xs text-blue-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30" 
+        type="button">
+        <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true" class="h-6 w-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"></path>
+          </svg>
+        </span>
+      </button>      
+        <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
+          <ul class="dropdown-list">
+            <li class="dropdown-link mt-2">
+              <a routerLink="/product-add">
+                <i class="fas fa-plus"></i> 
+                AGREGAR
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campo de búsqueda -->
+    <div class="px-6">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="applyFilter()" 
+        placeholder="Buscar producto..." 
+        class="mt-1 p-2 w-full border rounded-md text-sm">
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
+      <table class="w-full min-w-[640px] table-auto">
+        <thead>
+          <tr>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Producto</p>
+            </th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Descripción</p>
+            </th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Categorías</p>
+            </th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Precio</p>
+            </th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Disponible</p>
+            </th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredProducts">
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <div class="flex items-center gap-4">
+                <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">{{ item.name }}</p>
+              </div>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <div class="flex items-center gap-4">
+                <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">{{ item.description }}</p>
+              </div>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
+                {{ item.category}}
+              </p>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
+                {{ item.price | currency:'ARS':'symbol-narrow':'1.0-0' }}
+              </p>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
+                {{ item.available ? 'Sí' : 'No' }}
+              </p>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50 text-center">
+              <button 
+              (click)="editItem(item.id!)" 
+              [attr.aria-label]="'Editar ' + item.name"
+              class="text-blue-500 hover:text-blue-700">
+              <i class="fas fa-edit"></i>
+            </button>                        
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

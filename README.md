@@ -7,14 +7,6 @@
 
   <p align="center">Menu Dashboard en Angular 18+</p>
 
-
-## Contact
-
-- Author - [Neiser Custodio](https://instagram.com/neisercode)
-- Youtube - [https://www.youtube.com/@neisercp](https://youtube.com/@neisercp)
-- X - [@neisercp](https://twitter.com/neisercp)
-- Instagram - [@neisercode](https://instagram.com/neisercode)
-
 ## Installation
 
 ```bash
@@ -36,7 +28,3 @@ $ ng serve
 $ ng test
 
 ```
-
-## License
-
-By [Neiser Custodio](https://instagram.com/neisercode).

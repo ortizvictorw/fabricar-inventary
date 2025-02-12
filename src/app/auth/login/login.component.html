@@ -1,0 +1,48 @@
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-700">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div class="flex flex-col items-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Bienvenido</h2>
+        <p class="text-gray-600 mb-6 text-center">Inicia sesión para acceder al sistema</p>
+      </div>
+  
+      <!-- Formulario de login -->
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+          <input type="email" formControlName="email" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500 text-sm">
+            Ingresa un correo válido.
+          </div>
+        </div>
+  
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input type="password" formControlName="password" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500 text-sm">
+            La contraseña debe tener al menos 6 caracteres.
+          </div>
+        </div>
+  
+        <button type="submit" [disabled]="loginForm.invalid" 
+          class="w-full bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition flex items-center justify-center gap-3 shadow-md">
+          Iniciar Sesión
+        </button>
+      </form>
+  
+      <div class="flex items-center my-4">
+        <hr class="flex-grow border-gray-300">
+        <span class="mx-2 text-gray-500">O</span>
+        <hr class="flex-grow border-gray-300">
+      </div>
+  
+      <!-- Login con Google -->
+       <button (click)="loginWithGoogle()"
+        class="w-full bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-md hover:bg-gray-100 transition flex items-center justify-center gap-3 shadow-md">
+        <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" class="w-5 h-5">
+        Iniciar con Google
+      </button> 
+  
+      <p class="text-gray-500 text-xs text-center mt-4">Sistema de Gestión de Stock</p>
+    </div>
+  </div>
+  

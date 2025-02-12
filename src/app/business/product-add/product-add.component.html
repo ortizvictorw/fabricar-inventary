@@ -1,0 +1,56 @@
+<div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
+  <h2 class="text-xl font-bold text-gray-800 mb-4">Agregar Producto</h2>
+  
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Nombre -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Nombre</label>
+      <input type="text" formControlName="name" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+      <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="text-red-500 text-sm">
+        Nombre es requerido.
+      </div>
+    </div>
+    
+    <!-- Descripción -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Descripción</label>
+      <textarea formControlName="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+      <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="text-red-500 text-sm">
+        Descripción es requerida.
+      </div>
+    </div>
+    
+    <!-- Precio -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Precio</label>
+      <input type="number" formControlName="price" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500" min="1">
+      <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="text-red-500 text-sm">
+        El precio debe ser mayor a 0.
+      </div>
+    </div>
+
+    <!-- Disponibilidad -->
+    <div class="mb-4 flex items-center">
+      <input type="checkbox" formControlName="available" class="form-checkbox h-5 w-5 text-blue-600">
+      <label class="ml-2 text-gray-700 text-sm">Habilitado</label>
+    </div>
+    
+    <!-- Categoría -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Categoría</label>
+      <select formControlName="category" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+        <option value="" disabled>Seleccione una categoría</option>
+        <option *ngFor="let cat of categories$ | async" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+      <div *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched" class="text-red-500 text-sm">
+        Debe seleccionar una categoría.
+      </div>
+    </div>
+    
+    <!-- Botón Guardar -->
+    <button type="submit" [disabled]="productForm.invalid" class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+      Guardar
+    </button>
+  </form>
+</div>

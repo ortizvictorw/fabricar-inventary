@@ -1,0 +1,24 @@
+<div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Agregar Categoría</h2>
+    <form (ngSubmit)="onSubmit()">
+      
+      <!-- Nombre de la Categoría -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+        <input type="text" [(ngModel)]="category.name" name="name" class="mt-1 p-2 w-full border rounded-md" required>
+        <p *ngIf="!category.name.trim()" class="text-red-500 text-xs mt-1">El nombre es obligatorio</p>
+      </div>
+  
+      <!-- Estado (Habilitada o No) -->
+      <div class="mb-4">
+        <label class="inline-flex items-center">
+          <input type="checkbox" [(ngModel)]="category.enabled" name="enabled" class="form-checkbox">
+          <span class="ml-2 text-gray-700">Habilitado</span>
+        </label>
+      </div>
+      
+      <!-- Botón Guardar -->
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700">Guardar</button>
+    </form>
+  </div>
+  
