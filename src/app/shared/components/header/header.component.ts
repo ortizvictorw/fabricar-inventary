@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Location, CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
 
 interface Breadcrumb {
   label: string;
@@ -29,7 +30,7 @@ export class HeaderComponent implements OnInit {
     'category-add'
   ]; // Lista de rutas donde se mostrará el botón "Atrás"
 
-  constructor(private router: Router, private route: ActivatedRoute, private location: Location) {}
+  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute, private location: Location) {}
 
   ngOnInit(): void {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
@@ -70,5 +71,12 @@ export class HeaderComponent implements OnInit {
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+  }
+  logout() {
+    this.authService.logout().then(() => {
+      this.router.navigate(['/login']); // Redirigir al login después de cerrar sesión
+    }).catch(error => {
+      console.error('Error al cerrar sesión:', error);
+    });
   }
 }

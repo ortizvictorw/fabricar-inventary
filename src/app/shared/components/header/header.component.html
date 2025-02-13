@@ -1,44 +1,60 @@
 <div class="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
-    <!-- Sección de Botones -->
-    <div class="flex items-center gap-4">
-      <!-- Botón para ir atrás (Solo visible en ciertas rutas) -->
-      <button *ngIf="showBackButton"
-              (click)="goBack()" 
-              class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 transition">
-        <i class="fas fa-arrow-left"></i> Atrás
-      </button>
-  
-      <!-- Botón de menú hamburguesa (Solo visible en pantallas pequeñas) -->
-      <button (click)="toggleMenu()" class="relative middle none font-sans font-medium text-center uppercase transition-all w-10 h-10 rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 xl:hidden">
-        <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 text-blue-gray-500">
-            <path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"></path>
-          </svg>
-        </span>
-      </button>
-    </div>
-  </div>
-  
-  <!-- Fondo oscuro para cerrar el menú -->
-  <div *ngIf="isMenuOpen" 
-       class="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
-       (click)="toggleMenu()">
-  </div>
-  
-  <!-- Menú hamburguesa (Visible solo en pantallas pequeñas) -->
-  <nav [class.hidden]="!isMenuOpen" 
-       [class.flex]="isMenuOpen"
-       class="absolute top-0 left-0 w-full h-screen bg-white shadow-md xl:hidden flex-col justify-center items-center z-50 transition-transform duration-300">
-    
-    <!-- Botón de cerrar -->
-    <button (click)="toggleMenu()" class="absolute top-4 right-4 text-2xl text-gray-700 xl:hidden">
-      &times;
+  <!-- Sección de Botones -->
+  <div class="flex items-center gap-4">
+    <!-- Botón para ir atrás (Solo visible en ciertas rutas) -->
+    <button *ngIf="showBackButton"
+            (click)="goBack()" 
+            class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 transition">
+      <i class="fas fa-arrow-left"></i> Atrás
     </button>
+
+    <!-- Botón de menú hamburguesa (Solo visible en pantallas pequeñas) -->
+    <button (click)="toggleMenu()" class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all xl:hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 text-blue-gray-500">
+        <path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Fondo oscuro para cerrar el menú -->
+<div *ngIf="isMenuOpen" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
+     (click)="toggleMenu()">
+</div>
+
+<!-- Menú hamburguesa (Visible solo en pantallas pequeñas) -->
+<nav [class.hidden]="!isMenuOpen" 
+     [class.flex]="isMenuOpen"
+     class="fixed top-0 left-0 w-64 h-screen bg-white shadow-lg xl:hidden flex flex-col justify-start pt-6 px-4 z-50 transition-transform duration-300">
   
-    <ul class="flex flex-col gap-4 text-lg">
-      <li><a (click)="toggleMenu()" routerLink="/home" class="block p-2 text-gray-700 hover:bg-gray-200 rounded">Home</a></li>
-      <li><a (click)="toggleMenu()" routerLink="/about" class="block p-2 text-gray-700 hover:bg-gray-200 rounded">About</a></li>
-      <li><a (click)="toggleMenu()" routerLink="/contact" class="block p-2 text-gray-700 hover:bg-gray-200 rounded">Contact</a></li>
-    </ul>
-  </nav>
-  
+  <!-- Botón de cerrar -->
+  <button (click)="toggleMenu()" class="absolute top-4 right-4 text-2xl text-gray-700 xl:hidden">
+    &times;
+  </button>
+
+  <ul class="flex flex-col gap-4 text-lg mt-10">
+    <li>
+      <a (click)="toggleMenu()" routerLink="/stock" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-200 rounded">
+        <i class="fas fa-boxes text-blue-500"></i> Stock
+      </a>
+    </li>
+    <li>
+      <a (click)="toggleMenu()" routerLink="/product" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-200 rounded">
+        <i class="fas fa-box-open text-blue-500"></i> Productos
+      </a>
+    </li>
+    <li>
+      <a (click)="toggleMenu()" routerLink="/category" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-200 rounded">
+        <i class="fas fa-layer-group text-blue-500"></i> Categorías
+      </a>
+    </li>
+    <li>
+      <button
+        (click)="logout()"
+        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-3 transition-all">
+        <i class="fas fa-sign-out-alt text-lg"></i> Cerrar Sesión
+      </button>
+    </li>
+  </ul>
+</nav>
