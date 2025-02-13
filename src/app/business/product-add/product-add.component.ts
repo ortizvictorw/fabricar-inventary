@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Product, ProductService } from '../../services/product.service';
 import { Category, CategoryService } from '../../services/category.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-add',
@@ -36,19 +37,47 @@ export default class ProductAddComponent implements OnInit {
     this.categories$ = this.categoryService.getCategories(); // 🔄 Obtener categorías dinámicamente
   }
 
+  // ✅ Mensaje de éxito con SweetAlert2
+  showSuccessMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'success',
+      confirmButtonText: 'OK',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E', // Verde éxito
+      timer: 2500
+    });
+  }
+
+  // ✅ Mensaje de error con SweetAlert2
+  showErrorMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#EF4444' // Rojo error
+    });
+  }
+
   onSubmit() {
-    if (this.productForm.valid) {
-      this.productService.addProduct(this.productForm.value)
-        .then(() => {
-          alert('Producto agregado correctamente');
-          this.router.navigate(['/product']); // Redirigir después de actualizar
-        })
-        .catch(error => {
-          console.error('Error al agregar el producto:', error);
-          alert('Hubo un error al agregar el producto.');
-        });
-    } else {
-      alert('Por favor, completa todos los campos correctamente.');
+    if (this.productForm.invalid) {
+      this.showErrorMessage('Formulario incompleto', 'Por favor, completa todos los campos correctamente.');
+      return;
     }
+
+    this.productService.addProduct(this.productForm.value)
+      .then(() => {
+        this.showSuccessMessage('Producto agregado', 'El producto fue agregado correctamente.');
+        this.router.navigate(['/product']); // Redirigir después de agregar
+      })
+      .catch(error => {
+        console.error('Error al agregar el producto:', error);
+        this.showErrorMessage('Error en el proceso', 'Hubo un problema al agregar el producto.');
+      });
   }
 }

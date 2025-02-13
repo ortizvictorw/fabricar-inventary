@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { StockService, Stock } from '../../services/stock.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-stock-add',
@@ -18,8 +19,34 @@ export default class StockAddComponent implements OnDestroy {
   quantityToAdd: number = 0;
   private stockSubscription: Subscription | null = null;
 
-  constructor(private stockService: StockService, private router: Router
-  ) { }
+  constructor(private stockService: StockService, private router: Router) {}
+
+  // ✅ Mensaje de error con SweetAlert2
+  showErrorMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#EF4444'
+    });
+  }
+
+  // ✅ Mensaje de éxito con SweetAlert2
+  showSuccessMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'success',
+      confirmButtonText: 'OK',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E', // Verde éxito
+      timer: 2500
+    });
+  }
 
   onSearch() {
     if (!this.searchQuery.trim()) {
@@ -32,19 +59,23 @@ export default class StockAddComponent implements OnDestroy {
       this.stockSubscription.unsubscribe();
     }
 
-    this.stockSubscription = this.stockService.getStocks().subscribe(stocks => {
-      const foundStock = stocks.find(stock =>
-        stock.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-      this.stockItem = foundStock ?? { id: '', name: '', price: 0, quantity: 0, available: false };
-    }, error => {
-      console.error('Error al buscar el producto:', error);
-    });
+    this.stockSubscription = this.stockService.getStocks().subscribe(
+      (stocks) => {
+        const foundStock = stocks.find((stock) =>
+          stock.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+        this.stockItem = foundStock ?? { id: '', name: '', price: 0, quantity: 0, available: false };
+      },
+      (error) => {
+        console.error('Error al buscar el producto:', error);
+        this.showErrorMessage('Error de búsqueda', 'Hubo un problema al buscar el producto.');
+      }
+    );
   }
 
   async onAddStock() {
     if (!this.stockItem.id || this.quantityToAdd <= 0) {
-      alert('Por favor, selecciona un producto y una cantidad válida.');
+      this.showErrorMessage('Campos inválidos', 'Por favor, selecciona un producto y una cantidad válida.');
       return;
     }
 
@@ -55,12 +86,18 @@ export default class StockAddComponent implements OnDestroy {
       };
 
       await this.stockService.updateStock(updatedStock);
-      alert(`Se agregaron ${this.quantityToAdd} unidades a ${this.stockItem.name}`);
+
+      // ✅ Mostrar mensaje de éxito con SweetAlert2
+      this.showSuccessMessage(
+        'Stock actualizado',
+        `Se agregaron ${this.quantityToAdd} unidades a "${this.stockItem.name}".`
+      );
+
       this.router.navigate(['/stock']); // Redirigir después de actualizar
       this.resetForm();
     } catch (error) {
       console.error('Error al actualizar el stock:', error);
-      alert('Hubo un error al actualizar el stock.');
+      this.showErrorMessage('Error en actualización', 'Hubo un problema al actualizar el stock.');
     }
   }
 

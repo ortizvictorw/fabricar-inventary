@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '../../services/product.service';
 import { CategoryService, Category } from '../../services/category.service';
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-update-prices',
@@ -48,7 +49,24 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
 
   async applyPriceUpdate() {
     if (this.percentage <= 0) {
-      alert('El porcentaje de aumento debe ser mayor a 0.');
+      this.showErrorMessage('Error', 'El porcentaje de aumento debe ser mayor a 0.');
+      return;
+    }
+
+    const confirmResult = await Swal.fire({
+      title: '¿Actualizar precios?',
+      text: `Se aplicará un aumento del ${this.percentage}% a los productos seleccionados.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E',
+      cancelButtonColor: '#EF4444'
+    });
+
+    if (!confirmResult.isConfirmed) {
       return;
     }
 
@@ -62,12 +80,39 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
         await this.productService.updateProduct(product);
       }
 
-      alert(`Precios actualizados con un ${this.percentage}% de aumento.`);
+      this.showSuccessMessage('Precios actualizados', `Se aplicó un aumento del ${this.percentage}% correctamente.`);
       this.percentage = 0;
     } catch (error) {
       console.error('Error al actualizar los precios:', error);
-      alert('Hubo un error al actualizar los precios.');
+      this.showErrorMessage('Error', 'Hubo un problema al actualizar los precios.');
     }
+  }
+
+  // ✅ Mensaje de éxito con SweetAlert2
+  showSuccessMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'success',
+      confirmButtonText: 'OK',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E', // Verde éxito
+      timer: 2500
+    });
+  }
+
+  // ✅ Mensaje de error con SweetAlert2
+  showErrorMessage(title: string, message: string) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#EF4444' // Rojo error
+    });
   }
 
   ngOnDestroy() {
