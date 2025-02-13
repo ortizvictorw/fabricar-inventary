@@ -1,33 +1,35 @@
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
-  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
-    
+  <div
+    class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+
     <!-- Encabezado y Botones -->
-    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
-      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+    <div
+      class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6
+        class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
         Stock
       </h6>
 
-      <div class="flex items-center justify-end gap-3">
+      <div class="flex flex-col sm:flex-row items-center justify-end w-full sm:w-auto gap-3">
         <!-- Botón de Descargar Excel -->
         <button (click)="exportToExcel()"
-          class="bg-green-600 text-white px-3 py-2 text-sm min-w-32 rounded-md hover:bg-green-700 transition flex items-center gap-2 shadow-md">
-          <i class="fas fa-file-excel"></i> Descargar Inventario
+          class="bg-green-600 text-white px-3 py-2 text-sm w-full sm:w-auto min-w-32 max-w-full rounded-md hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md">
+          <i class="fas fa-file-excel"></i> <span class="hidden sm:inline">Descargar Inventario</span>
         </button>
 
         <!-- Botón de menú desplegable (3 puntos) -->
-        <button 
-          (click)="toggleOpen()" 
-          aria-expanded="false" 
-          aria-haspopup="menu" 
-          class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all" 
+        <button (click)="toggleOpen()" aria-expanded="false" aria-haspopup="menu"
+          class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all"
           type="button">
           <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true" class="h-6 w-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3"
+              stroke="currentColor" aria-hidden="true" class="h-6 w-6">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z">
+              </path>
             </svg>
           </span>
         </button>
-
         <!-- Menú desplegable -->
         <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
           <ul class="dropdown-list">
@@ -46,17 +48,12 @@
       </div>
     </div>
 
-
     <!-- Filtro de Búsqueda -->
     <div class="px-6">
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
-        (input)="applyFilter()" 
-        placeholder="Buscar producto..." 
+      <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Buscar producto..."
         class="mt-1 p-2 w-full border rounded-md text-sm">
     </div>
-    
+
     <!-- Tabla de Stock -->
     <div class="p-6 overflow-x-scroll px-0 pt-4 pb-2">
       <table class="w-full min-w-[640px] table-auto">
@@ -79,13 +76,14 @@
         <tbody>
           <tr *ngFor="let item of filteredStocks">
             <td class="py-3 px-5 border-b border-blue-gray-50">
-              <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">{{ item.name }}</p>
+              <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">{{ item.name }}
+              </p>
             </td>
 
             <td class="py-3 px-5 border-b border-blue-gray-50">
               <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{ item.quantity }}</p>
             </td>
-            
+
             <td class="py-3 px-5 border-b border-blue-gray-50">
               <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
                 {{ item.price | currency:'ARS':'symbol-narrow':'1.0-0' }}

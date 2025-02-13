@@ -2,16 +2,16 @@
   <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
     
     <!-- Encabezado y Botones -->
-    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
+    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
       <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
         Listado de Productos
       </h6>
 
-      <div class="flex items-center justify-end gap-3">
+      <div class="flex flex-col sm:flex-row items-center justify-end w-full sm:w-auto gap-3">
         <!-- Botón de Descargar Excel -->
         <button (click)="exportToExcel()"
-          class="bg-green-600 text-white px-3 py-2 text-sm min-w-32 rounded-md hover:bg-green-700 transition flex items-center gap-2 shadow-md">
-          <i class="fas fa-file-excel"></i> Descargar Productos
+          class="bg-green-600 text-white px-3 py-2 text-sm w-full sm:w-auto min-w-32 max-w-full rounded-md hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md">
+          <i class="fas fa-file-excel"></i> <span class="hidden sm:inline">Descargar Productos</span>
         </button>
 
         <!-- Botón de menú desplegable (3 puntos) -->
