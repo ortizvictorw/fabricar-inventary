@@ -1,0 +1,24 @@
+/* Transición del menú hamburguesa */
+nav {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Ocultar el menú por defecto */
+  .hidden {
+    display: none;
+  }
+  
+  /* Mostrar el menú cuando está abierto */
+  .flex {
+    display: flex;
+  }
+  
+  /* Estilo del fondo oscuro al abrir el menú */
+  .fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  

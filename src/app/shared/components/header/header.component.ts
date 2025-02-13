@@ -18,6 +18,7 @@ interface Breadcrumb {
 export class HeaderComponent implements OnInit {
   breadcrumbs: Breadcrumb[] = [];
   showBackButton: boolean = false; // Estado para mostrar u ocultar el botón "Atrás"
+  isMenuOpen: boolean = false; // Estado para mostrar u ocultar el menú hamburguesa
 
   private routesWithBackButton = [
     'product-add',
@@ -65,5 +66,9 @@ export class HeaderComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 }
