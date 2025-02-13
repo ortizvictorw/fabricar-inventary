@@ -1,12 +1,69 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Location, CommonModule } from '@angular/common';
+
+interface Breadcrumb {
+  label: string;
+  url: string;
+}
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, RouterLink, RouterLinkActive], // ✅ Importamos módulos requeridos
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  breadcrumbs: Breadcrumb[] = [];
+  showBackButton: boolean = false; // Estado para mostrar u ocultar el botón "Atrás"
 
+  private routesWithBackButton = [
+    'product-add',
+    'product-edit',
+    'consume-stock',
+    'add-stock',
+    'update-prices',
+    'category-add'
+  ]; // Lista de rutas donde se mostrará el botón "Atrás"
+
+  constructor(private router: Router, private route: ActivatedRoute, private location: Location) {}
+
+  ngOnInit(): void {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.breadcrumbs = this.createBreadcrumbs(this.route.root);
+      this.updateBackButtonVisibility(); // Verificar si el botón debe mostrarse
+    });
+  }
+
+  createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {
+    const children: ActivatedRoute[] = route.children;
+
+    if (children.length === 0) {
+      return breadcrumbs;
+    }
+
+    for (const child of children) {
+      const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
+      if (routeURL !== '') {
+        url += `/${routeURL}`;
+      }
+
+      breadcrumbs.push({ label: child.snapshot.data['title'] || routeURL, url });
+
+      return this.createBreadcrumbs(child, url, breadcrumbs);
+    }
+
+    return breadcrumbs;
+  }
+
+  updateBackButtonVisibility(): void {
+    const currentRoute = this.router.url.split('?')[0]; // Obtener la URL sin query params
+    this.showBackButton = this.routesWithBackButton.some(route => currentRoute.includes(route));
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
 }

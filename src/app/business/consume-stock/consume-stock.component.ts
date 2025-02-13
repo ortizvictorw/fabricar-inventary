@@ -13,16 +13,29 @@ import Swal from 'sweetalert2';
   styleUrls: ['./consume-stock.component.css']
 })
 export default class ConsumeStockComponent {
-  stockItem: Stock = { id: '', name: '', price: 0, quantity: 0, available: false };
+  stockItem: Stock | null = null;
   searchQuery: string = '';
   quantityToConsume: number = 0;
 
   constructor(private stockService: StockService, private router: Router) {}
 
+  // ✅ Mensaje de error con SweetAlert2
+  showErrorMessage(title: string, message: string) {
+    Swal.fire({
+      title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#EF4444'
+    });
+  }
+
   // ✅ Mensaje de éxito con SweetAlert2
   showSuccessMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'success',
       confirmButtonText: 'OK',
@@ -33,23 +46,10 @@ export default class ConsumeStockComponent {
     });
   }
 
-  // ✅ Mensaje de error con SweetAlert2
-  showErrorMessage(title: string, message: string) {
-    Swal.fire({
-      title: title,
-      text: message,
-      icon: 'error',
-      confirmButtonText: 'Aceptar',
-      background: '#1f2937',
-      color: '#ffffff',
-      confirmButtonColor: '#EF4444' // Rojo error
-    });
-  }
-
   // ✅ Mensaje de advertencia con SweetAlert2
   showWarningMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'warning',
       confirmButtonText: 'OK',
@@ -61,7 +61,7 @@ export default class ConsumeStockComponent {
 
   onSearch() {
     if (!this.searchQuery.trim()) {
-      this.stockItem = { id: '', name: '', price: 0, quantity: 0, available: false };
+      this.stockItem = null;
       return;
     }
 
@@ -70,7 +70,7 @@ export default class ConsumeStockComponent {
         const foundStock = stocks.find((stock) =>
           stock.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
-        this.stockItem = foundStock ?? { id: '', name: '', price: 0, quantity: 0, available: false };
+        this.stockItem = foundStock || null;
       },
       (error) => {
         console.error('Error al buscar el producto:', error);
@@ -80,13 +80,30 @@ export default class ConsumeStockComponent {
   }
 
   async onConsumeStock() {
-    if (!this.stockItem.id || this.quantityToConsume <= 0) {
-      this.showErrorMessage('Campos inválidos', 'Por favor, selecciona un producto y una cantidad válida.');
+    if (!this.stockItem || this.quantityToConsume <= 0) {
+      this.showErrorMessage('Campos inválidos', 'Selecciona un producto y una cantidad válida.');
       return;
     }
 
     if (this.quantityToConsume > this.stockItem.quantity) {
       this.showWarningMessage('Stock insuficiente', 'No puedes consumir más stock del disponible.');
+      return;
+    }
+
+    const confirmResult = await Swal.fire({
+      title: '¿Confirmar consumo?',
+      text: `Se consumirán ${this.quantityToConsume} unidades de "${this.stockItem.name}".`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, consumir',
+      cancelButtonText: 'Cancelar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E',
+      cancelButtonColor: '#EF4444'
+    });
+
+    if (!confirmResult.isConfirmed) {
       return;
     }
 
@@ -98,13 +115,12 @@ export default class ConsumeStockComponent {
 
       await this.stockService.updateStock(updatedStock);
 
-      // ✅ Mostrar mensaje de éxito con SweetAlert2
       this.showSuccessMessage(
         'Stock consumido',
         `Se consumieron ${this.quantityToConsume} unidades de "${this.stockItem.name}".`
       );
 
-      this.router.navigate(['/stock']); // Redirigir después de actualizar
+      this.router.navigate(['/stock']);
       this.resetForm();
     } catch (error) {
       console.error('Error al consumir stock:', error);
@@ -115,6 +131,6 @@ export default class ConsumeStockComponent {
   resetForm() {
     this.searchQuery = '';
     this.quantityToConsume = 0;
-    this.stockItem = { id: '', name: '', price: 0, quantity: 0, available: false };
+    this.stockItem = null;
   }
 }

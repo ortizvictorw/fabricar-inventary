@@ -6,50 +6,64 @@
     <!-- Nombre -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Nombre</label>
-      <input type="text" formControlName="name" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-      <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="text-red-500 text-sm">
-        Nombre es requerido.
-      </div>
+      <input type="text" formControlName="name" 
+        class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        [ngClass]="{'border-red-500': productForm.get('name')?.invalid && productForm.get('name')?.touched}">
+      <p *ngIf="productForm.get('name')?.hasError('required') && productForm.get('name')?.touched" class="text-red-500 text-xs mt-1">
+        El nombre es obligatorio.
+      </p>
+      <p *ngIf="productForm.get('name')?.hasError('minlength') && productForm.get('name')?.touched" class="text-red-500 text-xs mt-1">
+        Debe tener al menos 3 caracteres.
+      </p>
     </div>
     
     <!-- Descripción -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Descripción</label>
-      <textarea formControlName="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-      <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="text-red-500 text-sm">
-        Descripción es requerida.
-      </div>
+      <textarea formControlName="description" 
+        class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        [ngClass]="{'border-red-500': productForm.get('description')?.invalid && productForm.get('description')?.touched}"></textarea>
+      <p *ngIf="productForm.get('description')?.hasError('required') && productForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
+        La descripción es obligatoria.
+      </p>
+      <p *ngIf="productForm.get('description')?.hasError('minlength') && productForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
+        Debe tener al menos 10 caracteres.
+      </p>
     </div>
-    
+
     <!-- Precio -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Precio</label>
-      <input type="number" formControlName="price" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500" min="1">
-      <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="text-red-500 text-sm">
+      <input type="number" formControlName="price" 
+        class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        min="1">
+      <p *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="text-red-500 text-xs mt-1">
         El precio debe ser mayor a 0.
-      </div>
+      </p>
     </div>
 
     <!-- Disponibilidad -->
     <div class="mb-4 flex items-center">
       <input type="checkbox" formControlName="available" class="form-checkbox h-5 w-5 text-blue-600">
-      <label class="ml-2 text-gray-700 text-sm">Habilitado</label>
+      <label class="ml-2 text-gray-700 text-sm">Disponible</label>
     </div>
     
     <!-- Categoría -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Categoría</label>
-      <select formControlName="category" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+      <select formControlName="category" 
+        class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
         <option value="" disabled>Seleccione una categoría</option>
         <option *ngFor="let cat of categories$ | async" [value]="cat.id">{{ cat.name }}</option>
       </select>
-      <div *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched" class="text-red-500 text-sm">
+      <p *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched" class="text-red-500 text-xs mt-1">
         Debe seleccionar una categoría.
-      </div>
+      </p>
     </div>
     
     <!-- Botón Guardar -->
-    <button type="submit" [disabled]="productForm.invalid" class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+    <button type="submit" [disabled]="productForm.invalid"
+      class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
       Guardar Cambios
     </button>
   </form>

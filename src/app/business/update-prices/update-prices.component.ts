@@ -25,13 +25,13 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
   constructor(private productService: ProductService, private categoryService: CategoryService) {}
 
   ngOnInit() {
-    // Cargar productos
+    // 🔄 Cargar productos
     this.productSubscription = this.productService.getProducts().subscribe((data) => {
       this.products = data;
       this.filteredProducts = data;
     });
 
-    // Cargar categorías
+    // 🔄 Cargar categorías
     this.categorySubscription = this.categoryService.getCategories().subscribe((data) => {
       this.categories = data;
     });
@@ -91,7 +91,7 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
   // ✅ Mensaje de éxito con SweetAlert2
   showSuccessMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'success',
       confirmButtonText: 'OK',
@@ -105,13 +105,13 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
   // ✅ Mensaje de error con SweetAlert2
   showErrorMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'error',
       confirmButtonText: 'Aceptar',
       background: '#1f2937',
       color: '#ffffff',
-      confirmButtonColor: '#EF4444' // Rojo error
+      confirmButtonColor: '#EF4444'
     });
   }
 

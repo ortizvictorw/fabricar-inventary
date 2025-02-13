@@ -1,19 +1,25 @@
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
   <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
     
-    <!-- Encabezado y Filtro -->
+    <!-- Encabezado y Botones -->
     <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
-      <div>
-        <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900 mb-1">
-          Stock
-        </h6>
-      </div>
-      <div>
+      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+        Stock
+      </h6>
+
+      <div class="flex items-center justify-end gap-3">
+        <!-- Botón de Descargar Excel -->
+        <button (click)="exportToExcel()"
+          class="bg-green-600 text-white px-3 py-2 text-sm min-w-32 rounded-md hover:bg-green-700 transition flex items-center gap-2 shadow-md">
+          <i class="fas fa-file-excel"></i> Descargar Inventario
+        </button>
+
+        <!-- Botón de menú desplegable (3 puntos) -->
         <button 
           (click)="toggleOpen()" 
           aria-expanded="false" 
           aria-haspopup="menu" 
-          class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-8 max-w-[32px] h-8 max-h-[32px] rounded-lg text-xs text-blue-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30" 
+          class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all" 
           type="button">
           <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true" class="h-6 w-6">
@@ -21,24 +27,25 @@
             </svg>
           </span>
         </button>
+
+        <!-- Menú desplegable -->
         <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
           <ul class="dropdown-list">
             <li class="dropdown-link mt-2">
               <a routerLink="/consume-stock">
-                <i class="fas fa-fire"></i> 
-                CONSUMIR
+                <i class="fas fa-fire"></i> CONSUMIR
               </a>
             </li>
             <li class="dropdown-link mt-2">
               <a routerLink="/add-stock">
-                <i class="fas fa-upload"></i>
-                CARGAR
+                <i class="fas fa-upload"></i> CARGAR
               </a>
             </li>
           </ul>
         </div>
       </div>
     </div>
+
 
     <!-- Filtro de Búsqueda -->
     <div class="px-6">

@@ -2,14 +2,16 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // ✅ Importamos FormsModule para el filtro
+import { FormsModule } from '@angular/forms';
 import { Product, ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule], // ✅ Agregamos FormsModule
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.css'],
   animations: [
@@ -30,17 +32,13 @@ export default class ProductComponent implements OnInit {
 
   ngOnInit() {
     this.products$ = this.productService.getProducts();
-
-    // Aplicar filtro en tiempo real sin afectar la suscripción original
-    this.products$.subscribe(products => {
-      this.filteredProducts = products;
-    });
+    this.products$.subscribe(products => (this.filteredProducts = products));
   }
 
   applyFilter() {
+    const query = this.searchQuery.toLowerCase();
     this.products$.subscribe(products => {
-      const query = this.searchQuery.toLowerCase();
-      this.filteredProducts = products.filter(product => 
+      this.filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(query)
       );
     });
@@ -60,5 +58,29 @@ export default class ProductComponent implements OnInit {
 
   editItem(id: string) {
     this.router.navigate(['/product-edit', id]);
+  }
+
+  // 🔥 Exportar datos a Excel
+  exportToExcel() {
+    if (this.filteredProducts.length === 0) {
+      alert('No hay productos para exportar.');
+      return;
+    }
+
+    const data = this.filteredProducts.map(({ name, description, category, price, available }) => ({
+      Producto: name,
+      Descripción: description,
+      Categoría: category,
+      Precio: price,
+      Disponible: available ? 'Sí' : 'No'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Productos');
+
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(dataBlob, 'Listado_Productos.xlsx');
   }
 }

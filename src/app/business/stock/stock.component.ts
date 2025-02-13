@@ -5,11 +5,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { StockService, Stock } from '../../services/stock.service';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-stock',
   standalone: true,
-  imports: [CommonModule, NgFor, RouterLink, RouterLinkActive,FormsModule], // ✅ Importamos módulos necesarios
+  imports: [CommonModule, NgFor, RouterLink, RouterLinkActive, FormsModule], 
   templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.css'],
   animations: [
@@ -31,18 +33,17 @@ export default class StockComponent implements OnInit, OnDestroy {
   filteredStocks: Stock[] = [];
   searchQuery: string = '';
   open = false;
-  private destroy$ = new Subject<void>(); // 🚀 Para manejar la suscripción de manera segura
+  private destroy$ = new Subject<void>(); 
 
   constructor(private stockService: StockService) {}
 
   ngOnInit() {
-    // 🔄 Obtener los datos de stock desde Firestore y suscribirse de manera segura
     this.stockService.getStocks()
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         (data) => {
           this.stocks = data;
-          this.filteredStocks = data; // Inicialmente, sin filtro
+          this.filteredStocks = data;
         },
         (error) => {
           console.error('Error al obtener los datos de stock:', error);
@@ -70,8 +71,25 @@ export default class StockComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // 🚀 Evitar fugas de memoria cancelando la suscripción
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // ✅ Función para exportar la tabla a Excel
+  exportToExcel() {
+    const worksheet = XLSX.utils.json_to_sheet(this.filteredStocks.map(stock => ({
+      'Producto': stock.name,
+      'Cantidad': stock.quantity,
+      'Precio': stock.price,
+      'Disponible': stock.available ? 'Sí' : 'No'
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stock');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    saveAs(data, 'Stock.xlsx');
   }
 }

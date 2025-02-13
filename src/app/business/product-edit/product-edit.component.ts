@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { Product, ProductService } from '../../services/product.service';
 import { Category, CategoryService } from '../../services/category.service';
 import { catchError, take } from 'rxjs/operators';
@@ -18,8 +18,7 @@ import Swal from 'sweetalert2';
 export default class EditProductComponent implements OnInit {
   productForm: FormGroup;
   productId!: string;
-  product$!: Observable<Product | undefined>;
-  categories$: Observable<Category[]> = of([]); // ✅ Inicialización correcta
+  categories$: Observable<Category[]> = of([]);
 
   constructor(
     private fb: FormBuilder,
@@ -29,8 +28,8 @@ export default class EditProductComponent implements OnInit {
     private categoryService: CategoryService
   ) {
     this.productForm = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
       price: [0, [Validators.required, Validators.min(1)]],
       available: [false],
       category: ['', [Validators.required]]
@@ -38,16 +37,16 @@ export default class EditProductComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // 🔄 Obtener categorías de Firestore
+    // 🔄 Obtener categorías
     this.categories$ = this.categoryService.getCategories().pipe(
       catchError(error => {
         console.error('Error al obtener categorías:', error);
         this.showErrorMessage('Error', 'No se pudieron cargar las categorías.');
-        return of([]); // Si hay error, retornamos un array vacío para evitar fallos
+        return of([]);
       })
     );
 
-    // 📌 Obtener ID del producto desde la URL y cargarlo
+    // 📌 Obtener ID del producto desde la URL
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -58,17 +57,15 @@ export default class EditProductComponent implements OnInit {
   }
 
   loadProduct(id: string) {
-    this.product$ = this.productService.getProductById(id).pipe(
+    this.productService.getProductById(id).pipe(
       take(1),
       catchError(error => {
         console.error(`Error al obtener el producto con ID ${id}:`, error);
         this.showErrorMessage('Error', 'No se pudo cargar el producto.');
-        this.router.navigate(['/product']); // Redirigir si el producto no existe
+        this.router.navigate(['/product']);
         return of(undefined);
       })
-    );
-
-    this.product$.subscribe(product => {
+    ).subscribe(product => {
       if (product) {
         this.productForm.patchValue(product);
       } else {
@@ -81,13 +78,13 @@ export default class EditProductComponent implements OnInit {
   // ✅ Mensaje de éxito con SweetAlert2
   showSuccessMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'success',
       confirmButtonText: 'OK',
       background: '#1f2937',
       color: '#ffffff',
-      confirmButtonColor: '#22C55E', // Verde éxito
+      confirmButtonColor: '#22C55E',
       timer: 2500
     });
   }
@@ -95,32 +92,29 @@ export default class EditProductComponent implements OnInit {
   // ✅ Mensaje de error con SweetAlert2
   showErrorMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'error',
       confirmButtonText: 'Aceptar',
       background: '#1f2937',
       color: '#ffffff',
-      confirmButtonColor: '#EF4444' // Rojo error
+      confirmButtonColor: '#EF4444'
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.productForm.invalid) {
       this.showErrorMessage('Formulario incompleto', 'Por favor, completa todos los campos correctamente.');
       return;
     }
 
-    const updatedProduct: Product = { ...this.productForm.value, id: this.productId };
-
-    this.productService.updateProduct(updatedProduct)
-      .then(() => {
-        this.showSuccessMessage('Producto actualizado', 'El producto fue actualizado correctamente.');
-        this.router.navigate(['/product']);
-      })
-      .catch(error => {
-        console.error('Error al actualizar el producto:', error);
-        this.showErrorMessage('Error en la actualización', 'Hubo un problema al actualizar el producto.');
-      });
+    try {
+      await this.productService.updateProduct({ ...this.productForm.value, id: this.productId });
+      this.showSuccessMessage('Producto actualizado', 'El producto fue actualizado correctamente.');
+      this.router.navigate(['/product']);
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      this.showErrorMessage('Error en la actualización', 'Hubo un problema al actualizar el producto.');
+    }
   }
 }

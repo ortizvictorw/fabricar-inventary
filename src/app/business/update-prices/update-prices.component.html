@@ -4,7 +4,8 @@
   <!-- Selección de Categoría -->
   <div class="mb-4">
     <label class="block text-sm font-medium text-gray-700">Seleccionar Categoría</label>
-    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="mt-1 p-2 w-full border rounded-md">
+    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" 
+      class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
       <option value="all">Todos los Productos</option>
       <option *ngFor="let category of categories" [value]="category.name">
         {{ category.name }}
@@ -13,8 +14,9 @@
   </div>
 
   <!-- Mensaje si no hay productos -->
-  <div *ngIf="filteredProducts.length === 0 && selectedCategory !== 'all'" class="text-center text-gray-500 py-4">
-    No hay productos en esta categoría
+  <div *ngIf="filteredProducts.length === 0 && selectedCategory !== 'all'" 
+    class="text-center text-gray-500 py-4">
+    No hay productos en esta categoría.
   </div>
 
   <!-- Ingresar Porcentaje de Aumento -->
@@ -24,14 +26,19 @@
       type="number" 
       [(ngModel)]="percentage" 
       min="1" 
-      class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+      class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+      [ngClass]="{'border-red-500': percentage <= 0}">
+    <p *ngIf="percentage <= 0" class="text-red-500 text-xs mt-1">
+      El porcentaje debe ser mayor a 0.
+    </p>
   </div>
 
   <!-- Listado de Productos con Precios Actualizados -->
   <div *ngIf="filteredProducts.length > 0">
     <h3 class="text-lg font-semibold text-gray-700 mb-2">Precios Actualizados</h3>
     <ul class="mt-2 space-y-2">
-      <li *ngFor="let product of filteredProducts" class="p-3 bg-gray-100 border rounded-md flex justify-between shadow-sm">
+      <li *ngFor="let product of filteredProducts" 
+        class="p-3 bg-gray-100 border rounded-md flex justify-between shadow-sm">
         <span class="text-gray-700 font-medium">{{ product.name }} ({{ product.category }})</span>
         <span class="font-semibold text-green-600">
           ${{ calculateNewPrice(product.price) }} ARS
@@ -43,7 +50,7 @@
   <!-- Botón Confirmar -->
   <button 
     (click)="applyPriceUpdate()" 
-    [disabled]="filteredProducts.length === 0 || !percentage"
+    [disabled]="filteredProducts.length === 0 || percentage <= 0"
     class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full transition disabled:opacity-50 disabled:cursor-not-allowed">
     Confirmar Aumento
   </button>

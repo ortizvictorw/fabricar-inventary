@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./stock-add.component.css']
 })
 export default class StockAddComponent implements OnDestroy {
-  stockItem: Stock = { id: '', name: '', price: 0, quantity: 0, available: false };
+  stockItem: Stock | null = null;
   searchQuery: string = '';
   quantityToAdd: number = 0;
   private stockSubscription: Subscription | null = null;
@@ -24,7 +24,7 @@ export default class StockAddComponent implements OnDestroy {
   // ✅ Mensaje de error con SweetAlert2
   showErrorMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'error',
       confirmButtonText: 'Aceptar',
@@ -37,7 +37,7 @@ export default class StockAddComponent implements OnDestroy {
   // ✅ Mensaje de éxito con SweetAlert2
   showSuccessMessage(title: string, message: string) {
     Swal.fire({
-      title: title,
+      title,
       text: message,
       icon: 'success',
       confirmButtonText: 'OK',
@@ -50,11 +50,10 @@ export default class StockAddComponent implements OnDestroy {
 
   onSearch() {
     if (!this.searchQuery.trim()) {
-      this.stockItem = { id: '', name: '', price: 0, quantity: 0, available: false };
+      this.stockItem = null;
       return;
     }
 
-    // Cancelamos la suscripción anterior antes de crear una nueva
     if (this.stockSubscription) {
       this.stockSubscription.unsubscribe();
     }
@@ -64,7 +63,7 @@ export default class StockAddComponent implements OnDestroy {
         const foundStock = stocks.find((stock) =>
           stock.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
-        this.stockItem = foundStock ?? { id: '', name: '', price: 0, quantity: 0, available: false };
+        this.stockItem = foundStock || null;
       },
       (error) => {
         console.error('Error al buscar el producto:', error);
@@ -74,8 +73,25 @@ export default class StockAddComponent implements OnDestroy {
   }
 
   async onAddStock() {
-    if (!this.stockItem.id || this.quantityToAdd <= 0) {
-      this.showErrorMessage('Campos inválidos', 'Por favor, selecciona un producto y una cantidad válida.');
+    if (!this.stockItem || this.quantityToAdd <= 0) {
+      this.showErrorMessage('Campos inválidos', 'Selecciona un producto y una cantidad válida.');
+      return;
+    }
+
+    const confirmResult = await Swal.fire({
+      title: '¿Confirmar ingreso?',
+      text: `Se agregarán ${this.quantityToAdd} unidades a "${this.stockItem.name}".`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, agregar',
+      cancelButtonText: 'Cancelar',
+      background: '#1f2937',
+      color: '#ffffff',
+      confirmButtonColor: '#22C55E',
+      cancelButtonColor: '#EF4444'
+    });
+
+    if (!confirmResult.isConfirmed) {
       return;
     }
 
@@ -87,13 +103,12 @@ export default class StockAddComponent implements OnDestroy {
 
       await this.stockService.updateStock(updatedStock);
 
-      // ✅ Mostrar mensaje de éxito con SweetAlert2
       this.showSuccessMessage(
         'Stock actualizado',
         `Se agregaron ${this.quantityToAdd} unidades a "${this.stockItem.name}".`
       );
 
-      this.router.navigate(['/stock']); // Redirigir después de actualizar
+      this.router.navigate(['/stock']);
       this.resetForm();
     } catch (error) {
       console.error('Error al actualizar el stock:', error);
@@ -104,11 +119,10 @@ export default class StockAddComponent implements OnDestroy {
   resetForm() {
     this.searchQuery = '';
     this.quantityToAdd = 0;
-    this.stockItem = { id: '', name: '', price: 0, quantity: 0, available: false };
+    this.stockItem = null;
   }
 
   ngOnDestroy() {
-    // Limpiar la suscripción al destruir el componente
     if (this.stockSubscription) {
       this.stockSubscription.unsubscribe();
     }

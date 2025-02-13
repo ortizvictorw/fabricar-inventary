@@ -9,11 +9,11 @@
       [(ngModel)]="searchQuery" 
       (input)="onSearch()" 
       placeholder="Ingrese nombre del producto"
-      class="mt-1 p-2 w-full border rounded-md">
+      class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
   </div>
 
   <!-- Información del Producto Seleccionado -->
-  <div *ngIf="stockItem" class="mb-4 bg-gray-100 p-4 rounded-md">
+  <div *ngIf="stockItem" class="mb-4 bg-gray-100 p-4 rounded-md shadow-sm">
     <p class="font-semibold text-gray-800">{{ stockItem.name }}</p>
     <p class="text-gray-600">Stock disponible: <strong>{{ stockItem.quantity }}</strong></p>
   </div>
@@ -25,14 +25,18 @@
       type="number" 
       [(ngModel)]="quantityToAdd" 
       min="1"
-      class="mt-1 p-2 w-full border rounded-md">
+      class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+      [ngClass]="{'border-red-500': quantityToAdd <= 0}">
+    <p *ngIf="quantityToAdd <= 0" class="text-red-500 text-xs mt-1">
+      La cantidad debe ser mayor a 0.
+    </p>
   </div>
 
   <!-- Botón Ingresar -->
   <button 
     (click)="onAddStock()" 
-    class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700" 
-    *ngIf="stockItem">
+    [disabled]="!stockItem || quantityToAdd <= 0"
+    class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full transition disabled:opacity-50 disabled:cursor-not-allowed">
     Ingresar Stock
   </button>
 </div>
