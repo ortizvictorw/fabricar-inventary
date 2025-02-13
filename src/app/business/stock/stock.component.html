@@ -1,12 +1,9 @@
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
-  <div
-    class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
-
+  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+    
     <!-- Encabezado y Botones -->
-    <div
-      class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
-      <h6
-        class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
         Stock
       </h6>
 
@@ -21,37 +18,27 @@
         <button (click)="toggleOpen()" aria-expanded="false" aria-haspopup="menu"
           class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all"
           type="button">
-          <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3"
-              stroke="currentColor" aria-hidden="true" class="h-6 w-6">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z">
-              </path>
-            </svg>
-          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3"
+            stroke="currentColor" aria-hidden="true" class="h-6 w-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z">
+            </path>
+          </svg>
         </button>
-        <!-- Menú desplegable -->
-        <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
-          <ul class="dropdown-list">
-            <li class="dropdown-link mt-2">
-              <a routerLink="/consume-stock">
-                <i class="fas fa-fire"></i> CONSUMIR
-              </a>
-            </li>
-            <li class="dropdown-link mt-2">
-              <a routerLink="/add-stock">
-                <i class="fas fa-upload"></i> CARGAR
-              </a>
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
 
-    <!-- Filtro de Búsqueda -->
-    <div class="px-6">
+    <!-- Filtros -->
+    <div class="px-6 flex flex-col sm:flex-row gap-3">
+      <!-- Filtro de Búsqueda -->
       <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Buscar producto..."
         class="mt-1 p-2 w-full border rounded-md text-sm">
+
+      <!-- Filtro de Categoría -->
+      <select [(ngModel)]="selectedCategory" (change)="applyFilter()" class="mt-1 p-2 border rounded-md text-sm w-full sm:w-auto">
+        <option value="all">Todas las Categorías</option>
+        <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+      </select>
     </div>
 
     <!-- Tabla de Stock -->
@@ -59,42 +46,20 @@
       <table class="w-full min-w-[640px] table-auto">
         <thead>
           <tr>
-            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Producto</p>
-            </th>
-            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Cantidad</p>
-            </th>
-            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Precio</p>
-            </th>
-            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
-              <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">Disponible</p>
-            </th>
+            <th class="border-b py-3 px-6 text-left">Producto</th>
+            <th class="border-b py-3 px-6 text-left">Cantidad</th>
+            <th class="border-b py-3 px-6 text-left">Precio</th>
+            <th class="border-b py-3 px-6 text-left">Disponible</th>
+            <th class="border-b py-3 px-6 text-left">Categoría</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of filteredStocks">
-            <td class="py-3 px-5 border-b border-blue-gray-50">
-              <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">{{ item.name }}
-              </p>
-            </td>
-
-            <td class="py-3 px-5 border-b border-blue-gray-50">
-              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{ item.quantity }}</p>
-            </td>
-
-            <td class="py-3 px-5 border-b border-blue-gray-50">
-              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
-                {{ item.price | currency:'ARS':'symbol-narrow':'1.0-0' }}
-              </p>
-            </td>
-
-            <td class="py-3 px-5 border-b border-blue-gray-50">
-              <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">
-                {{ item.available ? 'Sí' : 'No' }}
-              </p>
-            </td>
+            <td class="py-3 px-5 border-b">{{ item.name }}</td>
+            <td class="py-3 px-5 border-b">{{ item.quantity }}</td>
+            <td class="py-3 px-5 border-b">{{ item.price | currency:'ARS':'symbol-narrow':'1.0-0' }}</td>
+            <td class="py-3 px-5 border-b">{{ item.available ? 'Sí' : 'No' }}</td>
+            <td class="py-3 px-5 border-b">{{ item.category || 'Sin categoría' }}</td>
           </tr>
         </tbody>
       </table>

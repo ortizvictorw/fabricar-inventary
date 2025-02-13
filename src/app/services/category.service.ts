@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, updateDoc, doc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc, updateDoc, doc, query, where, getDocs } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 export interface Category {
@@ -22,15 +22,35 @@ export class CategoryService {
     return collectionData(categoriesCollection, { idField: 'id' }) as Observable<Category[]>;
   }
 
-  // Agregar una nueva categoría
-  addCategory(category: Category) {
+  // 🔹 Verifica si ya existe una categoría con ese nombre (Case Insensitive)
+  async categoryExists(name: string): Promise<boolean> {
     const categoriesCollection = collection(this.firestore, this.collectionName);
-    return addDoc(categoriesCollection, category);
+    const q = query(categoriesCollection, where('name', '==', name.toLowerCase()));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty; // Retorna true si ya existe
   }
 
-  // Actualizar una categoría
-  updateCategory(category: Category) {
+  // Agregar una nueva categoría si no existe duplicado
+  async addCategory(category: Category): Promise<void> {
+    category.name = category.name.toLowerCase(); // Convertir a minúsculas para evitar duplicados por mayúsculas
+
+    if (await this.categoryExists(category.name)) {
+      throw new Error('Ya existe una categoría con ese nombre.');
+    }
+
+    const categoriesCollection = collection(this.firestore, this.collectionName);
+    await addDoc(categoriesCollection, category);
+  }
+
+  // Actualizar categoría (evitando duplicados)
+  async updateCategory(category: Category): Promise<void> {
+    category.name = category.name.toLowerCase(); // Normalizar el nombre
+
+    if (await this.categoryExists(category.name)) {
+      throw new Error('Ya existe otra categoría con ese nombre.');
+    }
+
     const categoryRef = doc(this.firestore, `${this.collectionName}/${category.id}`);
-    return updateDoc(categoryRef, { name: category.name, enabled: category.enabled });
+    await updateDoc(categoryRef, { name: category.name, enabled: category.enabled });
   }
 }

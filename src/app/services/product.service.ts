@@ -44,7 +44,8 @@ export class ProductService {
         name: product.name,
         price: product.price ?? 0,
         quantity: 0,
-        available: product.available
+        available: product.available,
+        category: product.category
       });
 
       return productRef;

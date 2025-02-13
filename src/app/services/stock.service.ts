@@ -8,6 +8,7 @@ export interface Stock {
   price: number;
   quantity: number;
   available: boolean;
+  category: string;
 }
 
 @Injectable({
