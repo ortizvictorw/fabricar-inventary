@@ -1,0 +1,28 @@
+<div class="container mx-auto p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Detalles del Presupuesto Confirmado</h2>
+
+    <div *ngIf="budget$ | async as budget; else loading">
+        <div class="bg-white p-4 rounded shadow-md">
+            <p class="text-lg font-semibold">Observación: {{ budget.observation }}</p>
+            <p class="text-md text-gray-600">Cliente: {{ budget.client }}</p>
+
+            <h3 class="text-lg font-semibold mt-4">Productos Requeridos</h3>
+            <table class="w-full mt-2 border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="border border-gray-300 px-4 py-2 text-left">Producto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let product of budget.products">
+                        <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <ng-template #loading>
+        <p class="text-gray-500">Cargando datos...</p>
+    </ng-template>
+</div>

@@ -1,6 +1,6 @@
 <aside
   class="bg-gradient-to-br from-gray-800 to-gray-900 -translate-x-80 fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 flex flex-col">
-  
+
   <div class="relative border-b border-white/20">
     <a class="flex items-center justify-center w-full py-6 px-8" routerLink="/stock">
       <h6 class="w-full">
@@ -8,10 +8,10 @@
       </h6>
     </a>
   </div>
-  
+
   <div class="m-4 flex flex-col flex-grow">
     <ul class="mb-4 flex flex-col gap-1">
-      
+
       <!-- Stock -->
       <li>
         <a routerLink="/stock">
@@ -71,12 +71,36 @@
           </button>
         </a>
       </li>
+      <hr>
+      <!-- Producción -->
+      <li>
+        <a routerLink="/production">
+          <button
+            routerLinkActive="bg-blue-600 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-85"
+            class="middle font-sans font-bold text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex w-full items-center gap-4 px-4 capitalize">
+            <i class="fas fa-industry text-lg"></i>
+            <p class="font-medium">Producción</p>
+          </button>
+        </a>
+      </li>
+
+      <!-- Historial de ventas -->
+      <li>
+        <a routerLink="/balance">
+          <button
+            routerLinkActive="bg-blue-600 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-85"
+            class="middle font-sans font-bold text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex w-full items-center gap-4 px-4 capitalize">
+            <i class="fas fa-chart-line text-lg"></i>
+            <p class="font-medium">Historial de ventas</p>
+          </button>
+        </a>
+      </li>
+
     </ul>
 
     <!-- Cerrar Sesión -->
     <div class="mt-auto">
-      <button
-        (click)="logout()"
+      <button (click)="logout()"
         class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-4 transition-all">
         <i class="fas fa-sign-out-alt text-lg"></i>
         Cerrar Sesión

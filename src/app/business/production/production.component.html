@@ -1,0 +1,61 @@
+<div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div
+        class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+
+        <!-- Encabezado y Filtro -->
+        <div
+            class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
+            <div>
+                <h6
+                    class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900 mb-1">
+                    Pedidos de Producción
+                </h6>
+            </div>
+            <div>
+                <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Buscar presupuesto..."
+                    class="mt-1 p-2 w-full border rounded-md text-sm">
+            </div>
+        </div>
+
+        <!-- Tabla de Presupuestos -->
+        <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
+            <table class="w-full min-w-[640px] table-auto">
+                <thead>
+                    <tr>
+                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
+                                Observación</p>
+                        </th>
+                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">
+                            <p class="block antialiased font-sans text-[11px] font-medium uppercase text-blue-gray-400">
+                                Cliente</p>
+                        </th>
+                        <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let budget of filteredBudgets">
+                        <td class="py-3 px-5 border-b border-blue-gray-50">
+                            <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-bold">
+                                {{ budget.observation }}</p>
+                        </td>
+                        <td class="py-3 px-5 border-b border-blue-gray-50">
+                            <p class="block antialiased font-sans text-xs font-medium text-blue-gray-600">{{
+                                budget.client }}</p>
+                        </td>
+                        <td class="py-3 px-5 border-b border-blue-gray-50 flex space-x-2">
+                            <button (click)="viewProducts(budget.id)"
+                                class="px-3 py-2 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+                                Ver Productos
+                            </button>
+                            <!-- <button (click)="confirmWork(budget.id!)"
+                                class="px-3 py-2 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700">
+                                Confirmar
+                            </button> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

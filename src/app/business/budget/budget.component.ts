@@ -7,6 +7,8 @@ import { Observable, Subscription } from 'rxjs';
 import { Budget, BudgetService } from '../../services/budget.service';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { ProductionService } from '../../services/production.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-budget',
@@ -27,13 +29,12 @@ export default class BudgetComponent implements OnInit, OnDestroy {
   searchQuery: string = '';
   open = false;
   private subscription!: Subscription;
-  selectedStatus: string = 'all'; // 🔹 Se agrega esta propiedad con un valor por defecto
+  selectedStatus: string = 'all';
 
-  constructor(private budgetService: BudgetService) {}
+  constructor(private budgetService: BudgetService, private productionService: ProductionService) { }
 
   ngOnInit() {
     this.budget$ = this.budgetService.getBudget();
-
     this.subscription = this.budget$.subscribe(budgets => {
       this.filteredBudgets = budgets;
     });
@@ -52,8 +53,8 @@ export default class BudgetComponent implements OnInit, OnDestroy {
     this.subscription = this.budget$.subscribe(budgets => {
       this.filteredBudgets = budgets.filter(budget => {
         const matchesQuery = budget.observation.toLowerCase().includes(query);
-        const matchesStatus = statusFilter === 'all' || 
-          (statusFilter === 'enabled' && budget.enabled) || 
+        const matchesStatus = statusFilter === 'all' ||
+          (statusFilter === 'enabled' && budget.enabled) ||
           (statusFilter === 'disabled' && !budget.enabled);
         return matchesQuery && matchesStatus;
       });
@@ -70,47 +71,68 @@ export default class BudgetComponent implements OnInit, OnDestroy {
     return budgetDate < today;
   }
 
+  confirmOrder(id?: string) {
+    if (id) {
+
+      this.productionService.confirmBudget(id).subscribe(() => {
+        this.filteredBudgets = this.filteredBudgets.filter(budget => budget.id !== id);
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Presupuesto confirmado',
+        text: 'El presupuesto ha sido confirmado con éxito.'
+      });
+
+    }
+  }
+
+  discardOrder(id?: string) {
+    if (id) {
+
+      this.productionService.discardBudget(id).subscribe(() => {
+        this.filteredBudgets = this.filteredBudgets.filter(budget => budget.id !== id);
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Presupuesto descartado',
+        text: 'El presupuesto ha sido descartado con éxito.'
+      });
+    }
+  }
   generatePDF(budget: Budget) {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const marginX = 10;
+    const imgWidth = pageWidth - 2 * marginX;
+    const imgHeight = imgWidth / 2;
 
-    // Cargar el logo y generar el PDF solo después de que cargue
     const img = new Image();
-    img.src = 'assets/logo.png'; // Asegúrate de que el logo esté en formato PNG
+    img.src = 'assets/logo-completo.jpeg';
     img.onload = () => {
-      doc.addImage(img, 'PNG', 10, 10, 40, 20);
-
-      // Encabezado del documento
+      const imgY = 5;
+      doc.addImage(img, 'jpeg', marginX, imgY, imgWidth, imgHeight);
+      const headerY = imgY + imgHeight + 10;
       doc.setFontSize(18);
-      doc.text('Presupuesto', 80, 20);
+      doc.text('Presupuesto', pageWidth / 2, headerY, { align: 'center' });
       doc.setFontSize(12);
-      doc.text(`Cliente: ${budget.client}`, 10, 40);
-      doc.text(`Vendedor: ${budget.operator}`, 10, 50);
-      doc.text(`Fecha de vigencia: ${budget.validity}`, 10, 60);
-
-      // Verificar que budget.products no sea undefined ni vacío
+      doc.text(`Cliente: ${budget.client}`, marginX, headerY + 15);
+      doc.text(`Vendedor: ${budget.operator}`, marginX, headerY + 25);
+      doc.text(`Fecha de vigencia: ${budget.validity}`, marginX, headerY + 35);
+      let tableStartY = headerY + 45;
       if (budget.products && budget.products.length > 0) {
-        // Tabla de productos
         autoTable(doc, {
-          startY: 70,
+          startY: tableStartY,
           head: [['Producto', 'Precio unitario']],
-          body: budget.products.map(p => [
-            p.name,
-            `${p.price} ARS`,
-          ]),
-          theme: 'grid'
+          body: budget.products.map(p => [p.name, `${p.price} ARS`]),
+          theme: 'grid',
+          styles: { halign: 'center' }
         });
       } else {
-        doc.text('No hay productos en este presupuesto.', 10, 75);
+        doc.text('No hay productos en este presupuesto.', marginX, tableStartY);
       }
-
-      // Obtener la posición final de la tabla
-      const finalY = (doc as any).lastAutoTable?.finalY || 80;
-
-      // Agregar información extra después de la tabla
+      const finalY = (doc as any).lastAutoTable?.finalY || tableStartY + 10;
       doc.setFontSize(14);
-      doc.text(`Total: ${budget.finalPrice} ARS`, 10, finalY + 10);
-
-      // Descargar el PDF
+      doc.text(`Total: ${budget.finalPrice} ARS`, marginX, finalY + 15);
       doc.save(`Presupuesto_${budget.client}.pdf`);
     };
   }

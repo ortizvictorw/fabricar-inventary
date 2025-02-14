@@ -1,12 +1,9 @@
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
-  <div
-    class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
 
     <!-- Encabezado y Botones -->
-    <div
-      class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
-      <h6
-        class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
         Listado de Presupuestos
       </h6>
 
@@ -37,19 +34,15 @@
 
     <!-- Filtros -->
     <div class="px-6 flex flex-col sm:flex-row gap-3">
-      <!-- Filtro de Búsqueda -->
       <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Buscar presupuesto..."
         class="mt-1 p-2 w-full border rounded-md text-sm">
 
-      <!-- Filtro de Vigencia -->
-      <!-- Filtro de Estado -->
       <select [(ngModel)]="selectedStatus" (change)="applyFilter()"
         class="mt-1 p-2 border rounded-md text-sm w-full sm:w-auto">
         <option value="all">Todos</option>
         <option value="enabled">Habilitados</option>
         <option value="disabled">No habilitados</option>
       </select>
-
     </div>
 
     <!-- Tabla de Presupuestos -->
@@ -63,7 +56,7 @@
             <th class="border-b py-3 px-6 text-left">Precio final</th>
             <th class="border-b py-3 px-6 text-left">Vigencia</th>
             <th class="border-b py-3 px-6 text-left">Estado</th>
-            <th class="border-b py-3 px-6 text-left">Descargar</th>
+            <th class="border-b py-3 px-6 text-left">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -79,10 +72,18 @@
                 {{ isBudgetExpired(budget.validity) ? 'Vencido' : 'Vigente' }}
               </span>
             </td>
-            <td class="py-3 px-5 border-b">
+            <td class="py-3 px-5 border-b flex gap-2">
               <button (click)="generatePDF(budget)"
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded flex items-center justify-center gap-2">
                 <i class="fas fa-file-pdf"></i> <span>PDF</span>
+              </button>
+               <button (click)="confirmOrder(budget.id)"
+                class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded flex items-center justify-center gap-2">
+                <i class="fas fa-check"></i> <span>Confirmar</span>
+              </button>
+              <button (click)="discardOrder(budget.id)"
+                class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i> <span>Descartar</span>
               </button>
             </td>
           </tr>
