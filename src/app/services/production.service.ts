@@ -29,7 +29,7 @@ export class ProductionService {
     private readonly budgetsCollection = 'budgets'; // Colección de presupuestos normales
     private readonly confirmedBudgetsCollection = 'confirmedBudgets'; // Presupuestos confirmados
 
-    constructor(private firestore: Firestore) {}
+    constructor(private firestore: Firestore) { }
 
     // Obtener presupuestos confirmados desde Firestore
     getConfirmedBudgets(): Observable<Budget[]> {
@@ -37,7 +37,7 @@ export class ProductionService {
         return collectionData(budgetCollection, { idField: 'id' }) as Observable<Budget[]>;
     }
 
-    // Confirmar un presupuesto (Moverlo a la colección 'confirmedBudgets')
+    // Confirmar un presupuesto (Moverlo a la colección 'confirmedBudgets' y eliminarlo de 'budgets')
     confirmBudget(id: string): Observable<void> {
         const originalBudgetRef = doc(this.firestore, `${this.budgetsCollection}/${id}`);
         const confirmedBudgetRef = doc(this.firestore, `${this.confirmedBudgetsCollection}/${id}`);
@@ -47,6 +47,10 @@ export class ProductionService {
                 if (budget) {
                     // Clonar el presupuesto en 'confirmedBudgets'
                     setDoc(confirmedBudgetRef, { ...budget, enabled: true })
+                        .then(() => {
+                            // Eliminar el presupuesto original de 'budgets'
+                            return deleteDoc(originalBudgetRef);
+                        })
                         .then(() => {
                             observer.next();
                             observer.complete();
@@ -73,7 +77,7 @@ export class ProductionService {
 
     // Descartar un presupuesto (de la colección de confirmados)
     discardBudget(id: string): Observable<void> {
-        const budgetRef = doc(this.firestore, `${this.confirmedBudgetsCollection}/${id}`);
+        const budgetRef = doc(this.firestore, `${this.budgetsCollection}/${id}`);
         return from(deleteDoc(budgetRef));
     }
 }
