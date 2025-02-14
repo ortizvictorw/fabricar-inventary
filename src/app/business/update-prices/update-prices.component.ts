@@ -32,7 +32,7 @@ export default class UpdatePricesComponent implements OnInit, OnDestroy {
     });
 
     // 🔄 Cargar categorías
-    this.categorySubscription = this.categoryService.getCategories().subscribe((data) => {
+    this.categorySubscription = this.categoryService.getBudget().subscribe((data) => {
       this.categories = data;
     });
   }

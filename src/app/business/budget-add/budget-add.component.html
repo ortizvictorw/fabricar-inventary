@@ -1,0 +1,63 @@
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-xl font-bold mb-4">Crear Presupuesto</h2>
+  
+  <form [formGroup]="budgetForm" (ngSubmit)="submitBudget()">
+    <!-- Observaciones -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Observaciones *</label>
+      <input formControlName="observation" type="text" class="w-full border rounded-md p-2" required>
+    </div>
+    
+    <!-- Cliente y Vendedor -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium">Nombre del Cliente</label>
+        <input formControlName="clientName" type="text" class="w-full border rounded-md p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Nombre del Vendedor</label>
+        <input formControlName="sellerName" type="text" class="w-full border rounded-md p-2">
+      </div>
+    </div>
+    
+    <!-- Fecha de Vigencia -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Fecha de Vigencia *</label>
+      <input formControlName="validityDate" type="date" class="w-full border rounded-md p-2" required [min]="minDate">
+    </div>
+    
+    <!-- Buscar Producto -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Buscar Producto</label>
+      <input type="text" [(ngModel)]="searchQuery" (input)="filterProducts()" class="w-full border rounded-md p-2" placeholder="Ingrese el nombre del producto...">
+      <ul class="mt-2 border rounded-md bg-white max-h-40 overflow-y-auto">
+        <li *ngFor="let product of filteredProducts" (click)="addProduct(product)" class="p-2 hover:bg-gray-200 cursor-pointer">
+          {{ product.name }} - {{ product.price | currency }}
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Lista de Productos Agregados -->
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-2">Productos en el Presupuesto</h3>
+      <ul>
+        <li *ngFor="let product of selectedProducts; let i = index" class="flex justify-between items-center border-b py-2">
+          <span>{{ product.name }} - {{ product.price | currency }}</span>
+          <button type="button" class="text-red-500" (click)="removeProduct(i)">Eliminar</button>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Ajuste de Precio -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Ajuste de Precio (%)</label>
+      <input formControlName="priceAdjustment" type="number" class="w-full border rounded-md p-2">
+    </div>
+    
+    <!-- Precio Final -->
+    <div class="mb-4 text-lg font-bold">Precio Final: {{ calculateFinalPrice() | currency }}</div>
+    
+    <!-- Botón Crear Presupuesto -->
+    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-md">Crear Presupuesto</button>
+  </form>
+</div>

@@ -47,6 +47,14 @@ export const routes: Routes = [
                 path: 'category-add',                
                 loadComponent: () => import('./business/category-add/category-add.component')
             },
+            { 
+                path: 'budget',                
+                loadComponent: () => import('./business/budget/budget.component')
+            },
+            { 
+                path: 'budget-add',                
+                loadComponent: () => import('./business/budget-add/budget-add.component')
+            },
             {
                 path: '',
                 redirectTo: 'stock',

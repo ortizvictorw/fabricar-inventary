@@ -1,9 +1,12 @@
 <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
-  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
-    
+  <div
+    class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+
     <!-- Encabezado y Botones -->
-    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
-      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+    <div
+      class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6
+        class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
         Stock
       </h6>
 
@@ -25,6 +28,22 @@
             </path>
           </svg>
         </button>
+        <!-- Menú desplegable -->
+        <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
+          <ul class="dropdown-list">
+            <li class="dropdown-link mt-2">
+              <a routerLink="/add-stock">
+                <i class="fas fa-boxes-stacked"></i> AGREGAR
+              </a>
+            </li>
+            <li class="dropdown-link mt-2">
+              <a routerLink="/consume-stock">
+                <i class="fas fa-dolly"></i> CONSUMIR
+              </a>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </div>
 
@@ -35,7 +54,8 @@
         class="mt-1 p-2 w-full border rounded-md text-sm">
 
       <!-- Filtro de Categoría -->
-      <select [(ngModel)]="selectedCategory" (change)="applyFilter()" class="mt-1 p-2 border rounded-md text-sm w-full sm:w-auto">
+      <select [(ngModel)]="selectedCategory" (change)="applyFilter()"
+        class="mt-1 p-2 border rounded-md text-sm w-full sm:w-auto">
         <option value="all">Todas las Categorías</option>
         <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
       </select>

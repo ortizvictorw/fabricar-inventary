@@ -29,7 +29,7 @@ export default class CategoryComponent implements OnInit {
   constructor(private categoryService: CategoryService, private router: Router) {}
 
   ngOnInit() {
-    this.categories$ = this.categoryService.getCategories();
+    this.categories$ = this.categoryService.getBudget();
 
     // Aplicar filtro en tiempo real sin afectar la suscripción original
     this.categories$.subscribe(categories => {

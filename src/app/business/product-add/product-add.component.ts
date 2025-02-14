@@ -34,7 +34,7 @@ export default class ProductAddComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.categories$ = this.categoryService.getCategories();
+    this.categories$ = this.categoryService.getBudget();
   }
 
   // ✅ Mensaje de éxito con SweetAlert2

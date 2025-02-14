@@ -38,7 +38,7 @@ export default class EditProductComponent implements OnInit {
 
   ngOnInit(): void {
     // 🔄 Obtener categorías
-    this.categories$ = this.categoryService.getCategories().pipe(
+    this.categories$ = this.categoryService.getBudget().pipe(
       catchError(error => {
         console.error('Error al obtener categorías:', error);
         this.showErrorMessage('Error', 'No se pudieron cargar las categorías.');

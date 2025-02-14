@@ -55,7 +55,7 @@ export default class StockComponent implements OnInit, OnDestroy {
       );
 
     // Obtener categorías
-    this.categoryService.getCategories()
+    this.categoryService.getBudget()
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         (categories) => {

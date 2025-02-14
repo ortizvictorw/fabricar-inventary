@@ -27,7 +27,8 @@ export class HeaderComponent implements OnInit {
     'consume-stock',
     'add-stock',
     'update-prices',
-    'category-add'
+    'category-add',
+    'budget-add'
   ]; // Lista de rutas donde se mostrará el botón "Atrás"
 
   constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute, private location: Location) {}

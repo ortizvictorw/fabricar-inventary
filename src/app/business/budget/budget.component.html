@@ -1,0 +1,93 @@
+<div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+  <div
+    class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+
+    <!-- Encabezado y Botones -->
+    <div
+      class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6
+        class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+        Listado de Presupuestos
+      </h6>
+
+      <div class="flex flex-col sm:flex-row items-center justify-end w-full sm:w-auto gap-3">
+        <!-- Botón de menú desplegable -->
+        <button (click)="toggleOpen()" aria-expanded="false" aria-haspopup="menu"
+          class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all"
+          type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="3"
+            stroke="currentColor" aria-hidden="true" class="h-6 w-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z">
+            </path>
+          </svg>
+        </button>
+        <!-- Menú desplegable -->
+        <div [@slideInOut]="open ? 'open' : 'closed'" class="dropdown-content">
+          <ul class="dropdown-list">
+            <li class="dropdown-link mt-2">
+              <a routerLink="/budget-add">
+                <i class="fas fa-plus"></i> AGREGAR
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="px-6 flex flex-col sm:flex-row gap-3">
+      <!-- Filtro de Búsqueda -->
+      <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Buscar presupuesto..."
+        class="mt-1 p-2 w-full border rounded-md text-sm">
+
+      <!-- Filtro de Vigencia -->
+      <!-- Filtro de Estado -->
+      <select [(ngModel)]="selectedStatus" (change)="applyFilter()"
+        class="mt-1 p-2 border rounded-md text-sm w-full sm:w-auto">
+        <option value="all">Todos</option>
+        <option value="enabled">Habilitados</option>
+        <option value="disabled">No habilitados</option>
+      </select>
+
+    </div>
+
+    <!-- Tabla de Presupuestos -->
+    <div class="p-6 overflow-x-scroll px-0 pt-4 pb-2">
+      <table class="w-full min-w-[640px] table-auto">
+        <thead>
+          <tr>
+            <th class="border-b py-3 px-6 text-left">Observación</th>
+            <th class="border-b py-3 px-6 text-left">Cliente</th>
+            <th class="border-b py-3 px-6 text-left">Vendedor</th>
+            <th class="border-b py-3 px-6 text-left">Precio final</th>
+            <th class="border-b py-3 px-6 text-left">Vigencia</th>
+            <th class="border-b py-3 px-6 text-left">Estado</th>
+            <th class="border-b py-3 px-6 text-left">Descargar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let budget of filteredBudgets">
+            <td class="py-3 px-5 border-b">{{ budget.observation }}</td>
+            <td class="py-3 px-5 border-b">{{ budget.client }}</td>
+            <td class="py-3 px-5 border-b">{{ budget.operator }}</td>
+            <td class="py-3 px-5 border-b">{{ budget.finalPrice | currency:'ARS':'symbol-narrow':'1.0-0' }}</td>
+            <td class="py-3 px-5 border-b">{{ budget.validity }}</td>
+            <td class="py-3 px-5 border-b">
+              <span class="px-2 py-1 text-xs font-semibold rounded-md"
+                [ngClass]="isBudgetExpired(budget.validity) ? 'bg-red-200 text-red-700' : 'bg-green-200 text-green-700'">
+                {{ isBudgetExpired(budget.validity) ? 'Vencido' : 'Vigente' }}
+              </span>
+            </td>
+            <td class="py-3 px-5 border-b">
+              <button (click)="generatePDF(budget)"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded flex items-center justify-center gap-2">
+                <i class="fas fa-file-pdf"></i> <span>PDF</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

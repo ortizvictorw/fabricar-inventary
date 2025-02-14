@@ -17,7 +17,7 @@ export class CategoryService {
   constructor(private firestore: Firestore) {}
 
   // Obtener categorías desde Firestore
-  getCategories(): Observable<Category[]> {
+  getBudget(): Observable<Category[]> {
     const categoriesCollection = collection(this.firestore, this.collectionName);
     return collectionData(categoriesCollection, { idField: 'id' }) as Observable<Category[]>;
   }
