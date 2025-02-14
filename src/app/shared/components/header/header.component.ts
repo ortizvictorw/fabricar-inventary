@@ -3,23 +3,19 @@ import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } f
 import { filter } from 'rxjs/operators';
 import { Location, CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
-
-interface Breadcrumb {
-  label: string;
-  url: string;
-}
+import { SubscriptionService } from '../../../services/suscription.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive], // ✅ Importamos módulos requeridos
+  imports: [CommonModule, RouterLink, RouterLinkActive], // 
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  breadcrumbs: Breadcrumb[] = [];
-  showBackButton: boolean = false; // Estado para mostrar u ocultar el botón "Atrás"
-  isMenuOpen: boolean = false; // Estado para mostrar u ocultar el menú hamburguesa
+  showBackButton: boolean = false;
+  isMenuOpen: boolean = false;
+  remainingDays: number = 0;
 
   private routesWithBackButton = [
     'product-add',
@@ -29,40 +25,33 @@ export class HeaderComponent implements OnInit {
     'update-prices',
     'category-add',
     'budget-add'
-  ]; // Lista de rutas donde se mostrará el botón "Atrás"
+  ];
 
-  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute, private location: Location) {}
+  constructor(
+    private authService: AuthService,
+    private subscriptionService: SubscriptionService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private location: Location
+  ) {}
 
   ngOnInit(): void {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
-      this.breadcrumbs = this.createBreadcrumbs(this.route.root);
-      this.updateBackButtonVisibility(); // Verificar si el botón debe mostrarse
+      this.updateBackButtonVisibility();
     });
-  }
 
-  createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {
-    const children: ActivatedRoute[] = route.children;
-
-    if (children.length === 0) {
-      return breadcrumbs;
-    }
-
-    for (const child of children) {
-      const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
-      if (routeURL !== '') {
-        url += `/${routeURL}`;
+    this.subscriptionService.getRemainingDays().subscribe(days => {
+      this.remainingDays = days;
+      console.log('Días restantes:', this.remainingDays);
+      if(this.remainingDays <= 0) {
+        this.subscriptionService.checkAndNotifyIfExpired();
       }
-
-      breadcrumbs.push({ label: child.snapshot.data['title'] || routeURL, url });
-
-      return this.createBreadcrumbs(child, url, breadcrumbs);
-    }
-
-    return breadcrumbs;
+    });
+    
   }
 
   updateBackButtonVisibility(): void {
-    const currentRoute = this.router.url.split('?')[0]; // Obtener la URL sin query params
+    const currentRoute = this.router.url.split('?')[0];
     this.showBackButton = this.routesWithBackButton.some(route => currentRoute.includes(route));
   }
 
@@ -73,9 +62,10 @@ export class HeaderComponent implements OnInit {
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
-  logout() {
+
+  logout(): void {
     this.authService.logout().then(() => {
-      this.router.navigate(['/login']); // Redirigir al login después de cerrar sesión
+      this.router.navigate(['/login']);
     }).catch(error => {
       console.error('Error al cerrar sesión:', error);
     });

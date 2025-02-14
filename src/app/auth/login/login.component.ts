@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { SubscriptionService } from '../../services/suscription.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,8 @@ export default class LoginComponent {
   loginForm: FormGroup;
   showPassword: boolean = false;
 
-  constructor(private authService: AuthService, private fb: FormBuilder) {
+  constructor(private authService: AuthService, private fb: FormBuilder, private subscriptionService: SubscriptionService, private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -51,7 +54,15 @@ export default class LoginComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.authService.loginWithEmail(email, password);
-      this.showSuccessMessage();
+      this.subscriptionService.getRemainingDays().subscribe(days => {
+        console.log('Días restantes:', days);
+        if (days <= 0) {
+          this.subscriptionService.checkAndNotifyIfExpired();
+        } else {
+          this.showSuccessMessage();
+          this.router.navigate(['/stock']); // 🔄 Redirigir tras login
+        }
+      });
 
     } else {
       this.showErrorMessage();

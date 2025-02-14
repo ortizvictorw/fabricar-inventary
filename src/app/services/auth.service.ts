@@ -17,7 +17,6 @@ export class AuthService {
   async loginWithEmail(email: string, password: string): Promise<void> {
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
-      this.router.navigate(['/stock']); // 🔄 Redirigir tras login
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
       alert('Correo o contraseña incorrectos.');

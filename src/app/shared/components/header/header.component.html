@@ -8,9 +8,15 @@
       <i class="fas fa-arrow-left"></i> Atrás
     </button>
 
-    <!-- Botón de menú hamburguesa (Solo visible en pantallas pequeñas) -->
-    <button (click)="toggleMenu()" class="relative w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-all xl:hidden">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 text-blue-gray-500">
+    <!-- Temporizador de suscripción -->
+    <div class="text-sm text-gray-600">
+      <span *ngIf="remainingDays > 0">📅 Tu suscripción vence en <strong>{{ remainingDays }} días</strong></span>
+      <span *ngIf="remainingDays === 0" class="text-red-600">⚠️ Suscripción vencida</span>
+    </div>
+
+    <!-- Botón de menú hamburguesa (Solo en móviles) -->
+    <button (click)="toggleMenu()" class="sm:block xl:hidden p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-all">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 text-gray-700">
         <path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"></path>
       </svg>
     </button>
@@ -18,18 +24,15 @@
 </div>
 
 <!-- Fondo oscuro para cerrar el menú -->
-<div *ngIf="isMenuOpen" 
-     class="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
-     (click)="toggleMenu()">
+<div *ngIf="isMenuOpen" class="fixed inset-0 bg-black bg-opacity-50 z-40 sm:block xl:hidden" (click)="toggleMenu()">
 </div>
 
 <!-- Menú hamburguesa (Visible solo en pantallas pequeñas) -->
-<nav [class.hidden]="!isMenuOpen" 
-     [class.flex]="isMenuOpen"
-     class="fixed top-0 left-0 w-64 h-screen bg-white shadow-lg xl:hidden flex flex-col justify-start pt-6 px-4 z-50 transition-transform duration-300">
+<nav [ngClass]="{ 'hidden': !isMenuOpen, 'flex': isMenuOpen }"
+     class="fixed top-0 left-0 w-64 h-screen bg-white shadow-lg sm:flex xl:hidden flex-col justify-start pt-6 px-4 z-50 transition-transform duration-300">
   
   <!-- Botón de cerrar -->
-  <button (click)="toggleMenu()" class="absolute top-4 right-4 text-2xl text-gray-700 xl:hidden">
+  <button (click)="toggleMenu()" class="absolute top-4 right-4 text-2xl text-gray-700 sm:block xl:hidden">
     &times;
   </button>
 
@@ -50,9 +53,7 @@
       </a>
     </li>
     <li>
-      <button
-        (click)="logout()"
-        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-3 transition-all">
+      <button (click)="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-3 transition-all">
         <i class="fas fa-sign-out-alt text-lg"></i> Cerrar Sesión
       </button>
     </li>
