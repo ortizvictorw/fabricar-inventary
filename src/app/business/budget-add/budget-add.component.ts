@@ -18,17 +18,18 @@ export default class BudgetAddComponent implements OnInit {
   budgetForm!: FormGroup;
   products: Product[] = [];
   filteredProducts: Product[] = [];
-  selectedProducts: Product[] = [];
+  selectedProducts: { product: Product, quantity: number }[] = [];
   totalPrice: number = 0;
   searchQuery: string = '';
   selectedProduct: Product | null = null;
   minDate: string = '';
+
   constructor(
     private fb: FormBuilder,
     private budgetService: BudgetService,
     private productService: ProductService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.minDate = new Date().toISOString().split('T')[0]; // Fecha de hoy en formato YYYY-MM-DD
@@ -56,25 +57,37 @@ export default class BudgetAddComponent implements OnInit {
     );
   }
 
-  selectProduct(product: Product): void {
-    this.selectedProduct = product;
-  }
-
   addProduct(product: Product): void {
-    this.selectProduct(product)
-
-    if (this.selectedProduct) {
-      this.selectedProducts.push(this.selectedProduct);
-      this.totalPrice += this.selectedProduct.price;
-      this.selectedProduct = null;
-      this.searchQuery = '';
-      this.filteredProducts = [];
+    const existingProduct = this.selectedProducts.find(p => p.product.id === product.id);
+    if (existingProduct) {
+      existingProduct.quantity += 1;
+    } else {
+      this.selectedProducts.push({ product, quantity: 1 });
     }
+    this.updateTotalPrice();
+    this.searchQuery = '';
+    this.filteredProducts = [];
   }
 
   removeProduct(index: number): void {
-    this.totalPrice -= this.selectedProducts[index].price;
     this.selectedProducts.splice(index, 1);
+    this.updateTotalPrice();
+  }
+
+  updateQuantity(index: number, event: any): void {
+    let quantity = event.target.value;
+    if (quantity < 1) {
+      quantity = 1;
+    }
+    this.selectedProducts[index].quantity = quantity;
+    this.updateTotalPrice();
+  }
+
+  updateTotalPrice(): void {
+    this.totalPrice = this.selectedProducts.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    );
   }
 
   calculateFinalPrice(): number {
@@ -96,7 +109,7 @@ export default class BudgetAddComponent implements OnInit {
       finalPrice: this.calculateFinalPrice(),
       enabled: true,
       createdAt: new Date().toISOString(),
-      products: this.selectedProducts
+      products: this.selectedProducts.map(p => ({ ...p.product, quantity: p.quantity }))
     };
 
     this.budgetService.addBudget(newBudget).then(() => {

@@ -122,8 +122,8 @@ export default class BudgetComponent implements OnInit, OnDestroy {
       if (budget.products && budget.products.length > 0) {
         autoTable(doc, {
           startY: tableStartY,
-          head: [['Producto', 'Precio unitario']],
-          body: budget.products.map(p => [p.name, `${p.price} ARS`]),
+          head: [['Producto', 'Cantidad', 'Precio unitario', 'Total']],
+          body: budget.products.map(p => [p.name, p.quantity ?? 0, `${p.price} ARS`, `${p.price * (p.quantity ?? 0)} ARS`]),
           theme: 'grid',
           styles: { halign: 'center' }
         });

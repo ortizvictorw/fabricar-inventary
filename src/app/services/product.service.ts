@@ -10,6 +10,7 @@ export interface Product {
   price: number;
   available: boolean;
   category: string;
+  quantity?: number;
 }
 
 @Injectable({
