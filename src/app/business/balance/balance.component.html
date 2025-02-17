@@ -1,9 +1,62 @@
-<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
-    <h1 class="text-4xl font-bold text-gray-800">🚧 En Construcción 🚧</h1>
-    <p class="text-lg text-gray-600 mt-4">Estamos trabajando arduamente para traerte algo increíble. ¡Mantente atento!</p>
-    <img 
-      src="assets/logo.svg" 
-      alt="En Construcción" 
-      class="w-64 h-64 mt-6"
-    />
+<div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+  <div class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">
+    
+    <!-- Encabezado y Botones -->
+    <div class="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex flex-wrap items-center justify-between p-6 gap-3">
+      <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900">
+        Histórico de ventas
+      </h6>
+
+      <div class="flex flex-col sm:flex-row items-center justify-end w-full sm:w-auto gap-3">
+        <!-- Botón de Descargar Excel -->
+        <button (click)="exportToExcel()"
+          class="bg-green-600 text-white px-3 py-2 text-sm w-full sm:w-auto min-w-32 max-w-full rounded-md hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md">
+          <i class="fas fa-file-excel"></i> <span>Descargar Balances</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtro de Búsqueda -->
+    <div class="px-6">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="applyFilter()" 
+        placeholder="Buscar balance..." 
+        class="mt-1 p-2 w-full border rounded-md text-sm">
+    </div>
+
+    <!-- Tabla de Balances -->
+    <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
+      <table class="w-full min-w-[640px] table-auto">
+        <thead>
+          <tr>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Cliente</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Productos</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Cantidad</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Precio unitario</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Observación</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Operador</th>
+            <th class="border-b border-blue-gray-50 py-3 px-6 text-left">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let balance of filteredBalances">
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance.client }}</td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">
+              <ul>
+                <li>{{ balance.productName }}</li>
+              </ul>
+            </td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance?.quantity || '1'}}</td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance.unitPrice | currency:'ARS':'symbol-narrow':'1.0-0' }}</td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance.observation }}</td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance.operator }}</td>
+            <td class="py-3 px-5 border-b border-blue-gray-50">{{ balance.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

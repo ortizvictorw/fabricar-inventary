@@ -21,7 +21,6 @@ export default class BudgetAddComponent implements OnInit {
   selectedProducts: { product: Product, quantity: number }[] = [];
   totalPrice: number = 0;
   searchQuery: string = '';
-  selectedProduct: Product | null = null;
   minDate: string = '';
 
   constructor(
@@ -34,12 +33,13 @@ export default class BudgetAddComponent implements OnInit {
   ngOnInit(): void {
     this.minDate = new Date().toISOString().split('T')[0]; // Fecha de hoy en formato YYYY-MM-DD
 
+    // Se agregan los validadores para que todos los campos sean obligatorios
     this.budgetForm = this.fb.group({
       observation: ['', Validators.required],
-      clientName: [''],
-      sellerName: [''],
+      clientName: ['', Validators.required],
+      sellerName: ['', Validators.required],
       validityDate: ['', Validators.required],
-      priceAdjustment: [0]
+      priceAdjustment: [0, [Validators.min(0)]]
     });
 
     this.loadProducts();
@@ -97,7 +97,12 @@ export default class BudgetAddComponent implements OnInit {
 
   submitBudget(): void {
     if (this.budgetForm.invalid) {
-      Swal.fire('Error', 'Por favor complete los campos obligatorios', 'error');
+      Swal.fire('Error', 'Por favor complete todos los campos obligatorios', 'error');
+      return;
+    }
+
+    if (this.selectedProducts.length === 0) {
+      Swal.fire('Error', 'Debe agregar al menos un producto al presupuesto', 'error');
       return;
     }
 
@@ -119,5 +124,16 @@ export default class BudgetAddComponent implements OnInit {
       Swal.fire('Error', 'No se pudo crear el presupuesto', 'error');
       console.error(error);
     });
+  }
+
+  // Función auxiliar para mostrar errores en el formulario
+  getErrorMessage(field: string): string {
+    if (this.budgetForm.get(field)?.hasError('required')) {
+      return 'Este campo es obligatorio';
+    }
+    if (this.budgetForm.get(field)?.hasError('min')) {
+      return 'El valor debe ser mayor o igual a 0';
+    }
+    return '';
   }
 }

@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, setDoc, updateDoc, docData, deleteDoc } from '@angular/fire/firestore';
-import { Observable, from } from 'rxjs';
+import { Observable, from, switchMap, take } from 'rxjs';
 
 export interface Product {
     id: string;
     name: string;
     quantity: number;
     price: number;
-}
 
-export interface Budget {
+}export interface Budget {
     id?: string;
     observation: string;
     client: string;
@@ -21,7 +20,6 @@ export interface Budget {
     completed?: boolean;
     products: Product[];
 }
-
 @Injectable({
     providedIn: 'root'
 })
@@ -79,5 +77,40 @@ export class ProductionService {
     discardBudget(id: string): Observable<void> {
         const budgetRef = doc(this.firestore, `${this.budgetsCollection}/${id}`);
         return from(deleteDoc(budgetRef));
+    }
+
+    confirmBudgetAndCreateBalance(id: string): Observable<void> {
+        const confirmedBudgetRef = doc(this.firestore, `${this.confirmedBudgetsCollection}/${id}`);
+    
+        return docData(confirmedBudgetRef).pipe(
+            take(1),
+            switchMap(budget => {
+                if (!budget || !budget['products'] || budget['products'].length === 0) {
+                    throw new Error('Budget not found or empty products list');
+                }
+
+                const batch = budget['products'].map((product: Product) => {
+                    const balanceRef = doc(this.firestore, `balance/${id}_${product.name.replace(/\s+/g, '_')}`);
+                    
+                    return setDoc(balanceRef, {
+                        balanceId: id,
+                        client: budget['client'],
+                        observation: budget['observation'],
+                        operator: budget['operator'],
+                        productName: product.name,
+                        quantity: Number(product.quantity),
+                        unitPrice: Number(product.price),
+                        totalPrice: Number(product.quantity) * Number(product.price),
+                        createdAt: budget['createdAt'],
+                        validity: budget['validity'],
+                        timestamp: new Date()
+                    });
+                });
+
+                return from(Promise.all(batch)).pipe(
+                    switchMap(() => from(deleteDoc(confirmedBudgetRef)))
+                );
+            })
+        );
     }
 }
