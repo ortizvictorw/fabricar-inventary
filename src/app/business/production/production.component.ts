@@ -27,7 +27,7 @@ export default class ProductionComponent implements OnInit {
   searchQuery: string = '';
   open = false;
 
-  constructor(private productionService: ProductionService, private router: Router) {}
+  constructor(private productionService: ProductionService, private router: Router) { }
 
   ngOnInit() {
     this.budgets$ = this.productionService.getConfirmedBudgets();
@@ -52,7 +52,7 @@ export default class ProductionComponent implements OnInit {
     this.budgets$.pipe(take(1)).subscribe({
       next: budgets => {
         const query = this.searchQuery.toLowerCase();
-        this.filteredBudgets = budgets.filter(budget => 
+        this.filteredBudgets = budgets.filter(budget =>
           budget.observation.toLowerCase().includes(query) ||
           budget.client.toLowerCase().includes(query)
         );
@@ -121,17 +121,17 @@ export default class ProductionComponent implements OnInit {
               showConfirmButton: false
             });
           },
-          error: err => {
+          error: (err) => {
             console.error('Error al confirmar presupuesto:', err);
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: 'Hubo un problema al confirmar el presupuesto.',
-              timer: 2000,
-              showConfirmButton: false
+              text: err.message || 'Hubo un problema al confirmar el presupuesto.',
+              confirmButtonText: 'Aceptar'
             });
           }
         });
+
       }
     });
   }
