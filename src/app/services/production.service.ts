@@ -102,22 +102,25 @@ export class ProductionService {
                         map(snapshot => {
                             if (snapshot.empty) {
                                 console.warn(`Stock no encontrado para: ${product.name} en la categoría ${product.category}`);
-                                return { product, availableStock: 0, isAvailable: false };
+                                return { product, availableStock: 0, isAvailable: false, stockDocId: null };
                             }
     
                             // Obtener el primer documento encontrado
-                            const stockData = snapshot.docs[0].data() as Product;
+                            const stockDoc = snapshot.docs[0]; // Documento Firestore
+                            const stockData = stockDoc.data();
+    
                             return {
                                 product,
-                                availableStock: stockData.quantity || 0,
-                                isAvailable: stockData.available !== undefined ? stockData.available : false
+                                availableStock: stockData['quantity'] || 0,
+                                isAvailable: stockData['available'] !== undefined ? stockData['available'] : false,
+                                stockDocId: stockDoc.id // Guardamos el ID del documento Firestore
                             };
                         })
                     );
                 });
     
-                return forkJoin<{ product: Product, availableStock: number, isAvailable: boolean }[]>(stockChecks$).pipe(
-                    switchMap((stockResults: { product: Product, availableStock: number, isAvailable: boolean }[]) => {
+                return forkJoin<{ product: Product, availableStock: number, isAvailable: boolean, stockDocId: string | null }[]>(stockChecks$).pipe(
+                    switchMap((stockResults: { product: Product, availableStock: number, isAvailable: boolean, stockDocId: string | null }[]) => {
                         // Filtrar productos sin stock suficiente o no disponibles
                         const insufficientStock = stockResults.filter(({ product, availableStock, isAvailable }) =>
                             Number(product.quantity) > Number(availableStock) || !isAvailable
@@ -140,10 +143,22 @@ export class ProductionService {
                             return throwError(() => new Error(`Stock insuficiente:\n${errorMessage}`));
                         }
     
-                        // Si hay stock suficiente, proceder con la creación del balance
-                        const batch = stockResults.map(({ product }) => {
+                        // Si hay stock suficiente, proceder con la creación del balance y actualizar el stock
+                        const batch = stockResults.map(({ product, availableStock, stockDocId }) => {
+                            if (!stockDocId) return null; // Si no hay ID del stock, no podemos actualizarlo
+    
+                            // Nueva cantidad de stock después de la reducción
+                            const newStockQuantity = availableStock - Number(product.quantity);
+                            const stockRef = doc(this.firestore, `stocks/${stockDocId}`);
+    
+                            // Actualizar la cantidad en Firestore
+                            const updateStock = updateDoc(stockRef, {
+                                quantity: newStockQuantity
+                            });
+    
+                            // Crear el registro en balance
                             const balanceRef = doc(this.firestore, `balance/${id}_${product.id}`);
-                            return setDoc(balanceRef, {
+                            const createBalance = setDoc(balanceRef, {
                                 balanceId: id,
                                 client: budget['client'],
                                 observation: budget['observation'],
@@ -156,7 +171,9 @@ export class ProductionService {
                                 validity: budget['validity'],
                                 timestamp: new Date()
                             });
-                        });
+    
+                            return Promise.all([updateStock, createBalance]);
+                        }).filter(Boolean); // Filtramos los `null` en caso de que no haya stockDocId.
     
                         return from(Promise.all(batch)).pipe(
                             switchMap(() => from(deleteDoc(confirmedBudgetRef)))
@@ -170,9 +187,5 @@ export class ProductionService {
             })
         );
     }
-    
-    
-    
-    
     
 }
