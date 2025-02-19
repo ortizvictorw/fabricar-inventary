@@ -35,7 +35,7 @@ export default class BudgetAddComponent implements OnInit {
 
     // Se agregan los validadores para que todos los campos sean obligatorios
     this.budgetForm = this.fb.group({
-      observation: ['', Validators.required],
+      observation: [''],
       clientName: ['', Validators.required],
       sellerName: ['', Validators.required],
       validityDate: ['', Validators.required],

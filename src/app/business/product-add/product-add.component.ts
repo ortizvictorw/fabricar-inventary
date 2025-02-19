@@ -26,7 +26,7 @@ export default class ProductAddComponent implements OnInit {
   ) {
     this.productForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
+      description: [''],
       price: [0, [Validators.required, Validators.min(1)]], // ✅ Validación del precio mayor a 0
       available: [false],
       category: ['', [Validators.required]]
