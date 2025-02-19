@@ -2,38 +2,47 @@
   <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Crear Presupuesto</h2>
 
   <form [formGroup]="budgetForm" (ngSubmit)="submitBudget()" class="space-y-4">
-    
+
     <!-- Observaciones -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Observaciones *</label>
-      <input formControlName="observation" type="text" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none" required>
+      <input formControlName="observation" type="text"
+        class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        required>
     </div>
 
     <!-- Cliente y Vendedor (Responsive en columnas) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Nombre del Cliente</label>
-        <input formControlName="clientName" type="text" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
+        <input formControlName="clientName" type="text"
+          class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Nombre del Vendedor</label>
-        <input formControlName="sellerName" type="text" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
+        <input formControlName="sellerName" type="text"
+          class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
       </div>
     </div>
 
     <!-- Fecha de Vigencia -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de Vigencia *</label>
-      <input formControlName="validityDate" type="date" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none" required [min]="minDate">
+      <input formControlName="validityDate" type="date"
+        class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        required [min]="minDate">
     </div>
 
     <!-- Buscar Producto -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Buscar Producto</label>
-      <input type="text" [(ngModel)]="searchQuery" (input)="filterProducts()" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="Ingrese el nombre del producto...">
+      <input type="text" [(ngModel)]="searchQuery" (input)="filterProducts()"
+        class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        placeholder="Ingrese el nombre del producto...">
       <ul class="mt-2 border border-gray-300 rounded-lg bg-white max-h-40 overflow-y-auto shadow-md">
-        <li *ngFor="let product of filteredProducts" (click)="addProduct(product)" class="p-3 hover:bg-gray-100 cursor-pointer text-gray-800 flex justify-between items-center">
-          <span>{{ product.name }}</span>
+        <li *ngFor="let product of filteredProducts" (click)="addProduct(product)"
+          class="p-3 hover:bg-gray-100 cursor-pointer text-gray-800 flex justify-between items-center">
+          <span>{{ product.name }} - {{product.description}} - {{product.category}}</span>
           <span class="text-green-600 font-semibold">{{ product.price | currency }}</span>
         </li>
       </ul>
@@ -43,13 +52,16 @@
     <div>
       <h3 class="text-lg font-semibold text-gray-800 mb-2">Productos en el Presupuesto</h3>
       <ul class="space-y-2">
-        <li *ngFor="let item of selectedProducts; let i = index" class="bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row sm:justify-between sm:items-center">
+        <li *ngFor="let item of selectedProducts; let i = index"
+          class="bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <div class="text-gray-800">
-            <span class="font-medium">{{ item.product.name }}</span> - 
+            <span class="font-medium">{{ item.product.name }} - {{item.product.description}} -
+              {{item.product.category}}</span> -
             <span class="text-green-600 font-semibold">{{ (item.product.price * item.quantity) | currency }}</span>
           </div>
           <div class="flex items-center mt-2 sm:mt-0">
-            <input type="number" min="1" [(ngModel)]="item.quantity" (change)="updateQuantity(i, $event)" class="border border-gray-300 rounded-lg p-2 w-16 text-center mr-2 focus:ring-2 focus:ring-green-500 focus:outline-none">
+            <input type="number" min="1" [(ngModel)]="item.quantity" (change)="updateQuantity(i, $event)"
+              class="border border-gray-300 rounded-lg p-2 w-16 text-center mr-2 focus:ring-2 focus:ring-green-500 focus:outline-none">
             <button type="button" class="text-red-500 hover:text-red-700" (click)="removeProduct(i)">Eliminar</button>
           </div>
         </li>
@@ -59,7 +71,8 @@
     <!-- Ajuste de Precio -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Ajuste de Precio (%)</label>
-      <input formControlName="priceAdjustment" type="number" class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
+      <input formControlName="priceAdjustment" type="number"
+        class="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-green-500 focus:outline-none">
     </div>
 
     <!-- Precio Final -->
@@ -67,10 +80,10 @@
       Precio Final: {{ calculateFinalPrice() | currency }}
     </div>
 
-    <button type="submit" [disabled]="budgetForm.invalid || selectedProducts.length === 0" 
-    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
-    Crear Presupuesto
-  </button>
-  
+    <button type="submit" [disabled]="budgetForm.invalid || selectedProducts.length === 0"
+      class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+      Crear Presupuesto
+    </button>
+
   </form>
 </div>
