@@ -35,27 +35,106 @@ export class ProductionService {
     confirmBudget(id: string): Observable<void> {
         const originalBudgetRef = doc(this.firestore, `${this.budgetsCollection}/${id}`);
         const confirmedBudgetRef = doc(this.firestore, `${this.confirmedBudgetsCollection}/${id}`);
-
-        return new Observable(observer => {
-            docData(originalBudgetRef).subscribe(budget => {
-                if (budget) {
-                    // Clonar el presupuesto en 'confirmedBudgets'
-                    setDoc(confirmedBudgetRef, { ...budget, enabled: true })
-                        .then(() => {
-                            // Eliminar el presupuesto original de 'budgets'
-                            return deleteDoc(originalBudgetRef);
-                        })
-                        .then(() => {
-                            observer.next();
-                            observer.complete();
-                        })
-                        .catch(error => observer.error(error));
-                } else {
-                    observer.error(new Error('Budget not found'));
+    
+        return docData(originalBudgetRef).pipe(
+            take(1),
+            switchMap(budget => {
+                if (!budget || !budget['products'] || budget['products'].length === 0) {
+                    return throwError(() => new Error('Budget not found or empty products list'));
                 }
-            });
-        });
-    }
+    
+                const stockChecks$ = budget['products'].map((product: Product) => {
+                    const stockCollectionRef = collection(this.firestore, 'stocks');
+                    const stockQuery = query(
+                        stockCollectionRef,
+                        where('name', '==', product.name),
+                        where('category', '==', product.category)
+                    );
+    
+                    return from(getDocs(stockQuery)).pipe(
+                        take(1),
+                        map(snapshot => {
+                            if (snapshot.empty) {
+                                return { product, availableStock: 0, stockDocId: null };
+                            }
+                            const stockDoc = snapshot.docs[0];
+                            return {
+                                product,
+                                availableStock: stockDoc.data()['quantity'] || 0,
+                                stockDocId: stockDoc.id
+                            };
+                        })
+                    );
+                });
+    
+                return forkJoin(stockChecks$).pipe(
+                    switchMap((stockResults: any) => {
+                        const productsForConfirmed: Product[] = [];
+                        const remainingProducts: Product[] = [];
+                        let confirmedTotalPrice = 0;
+                        let remainingTotalPrice = 0;
+    
+                        const batchUpdates = stockResults.map(({ product, availableStock, stockDocId }: { product: Product, availableStock: number, stockDocId: string | null }) => {
+                            if (!stockDocId) {
+                                remainingProducts.push(product);
+                                remainingTotalPrice += Number(product.quantity) * Number(product.price);
+                                return null;
+                            }
+    
+                            const neededQuantity = Number(product.quantity);
+                            if (availableStock >= neededQuantity) {
+                                productsForConfirmed.push({ ...product, quantity: neededQuantity });
+                                confirmedTotalPrice += neededQuantity * Number(product.price);
+                                const newStockQuantity = availableStock - neededQuantity;
+                                return updateDoc(doc(this.firestore, `stocks/${stockDocId}`), { quantity: newStockQuantity });
+                            } else {
+                                productsForConfirmed.push({ ...product, quantity: availableStock });
+                                confirmedTotalPrice += availableStock * Number(product.price);
+                                remainingProducts.push({ ...product, quantity: neededQuantity - availableStock });
+                                remainingTotalPrice += (neededQuantity - availableStock) * Number(product.price);
+                                return updateDoc(doc(this.firestore, `stocks/${stockDocId}`), { quantity: 0 });
+                            }
+                        }).filter(Boolean);
+    
+                        if (batchUpdates.length === 0) {
+                            return throwError(() => new Error('No stock available for any product'));
+                        }
+    
+                        return from(Promise.all(batchUpdates)).pipe(
+                            switchMap(() => {
+                                return setDoc(confirmedBudgetRef, { 
+                                    ...budget, 
+                                    products: productsForConfirmed,
+                                    finalPrice: confirmedTotalPrice
+                                }).then(() => {
+                                    if (remainingProducts.length > 0) {
+                                        Swal.fire({
+                                            icon: 'info',
+                                            title: 'Stock insuficiente',
+                                            text: 'Se ha creado un nuevo presupuesto con los productos restantes.',
+                                            confirmButtonText: 'Aceptar'
+                                        });
+                                        const newBudgetRef = doc(this.firestore, `${this.budgetsCollection}/${id}_remaining`);
+                                        return setDoc(newBudgetRef, { 
+                                            ...budget, 
+                                            products: remainingProducts,
+                                            finalPrice: remainingTotalPrice
+                                        });
+                                    }
+                                    return Promise.resolve();
+                                }).then(() => deleteDoc(originalBudgetRef));
+                            })
+                        );
+                    })
+                );
+            }),
+            catchError(error => {
+                console.error('Error in confirmBudget:', error);
+                return throwError(() => error);
+            })
+        );
+    }    
+    
 
     // Obtener un presupuesto por ID (de la colección de confirmados)
     getBudgetById(id: string): Observable<Budget | undefined> {
@@ -77,115 +156,31 @@ export class ProductionService {
 
     confirmBudgetAndCreateBalance(id: string): Observable<void> {
         const confirmedBudgetRef = doc(this.firestore, `${this.confirmedBudgetsCollection}/${id}`);
-    
         return docData(confirmedBudgetRef).pipe(
             take(1),
             switchMap(budget => {
-                if (!budget || !budget['products'] || budget['products'].length === 0) {
-                    return throwError(() => new Error('Budget not found or empty products list'));
+                if (!budget) {
+                    return throwError(() => new Error('Budget not found'));
                 }
     
-                // Consultar stock de todos los productos por nombre y categoría
-                const stockChecks$ = budget['products'].map((product: Product) => {
-                    const stockCollectionRef = collection(this.firestore, 'stocks'); // Referencia a la colección 'stocks'
-    
-                    // Crear la consulta para buscar el producto en stock por nombre y categoría
-                    const stockQuery = query(
-                        stockCollectionRef,
-                        where('name', '==', product.name),
-                        where('category', '==', product.category)
-                    );
-    
-                    return from(getDocs(stockQuery)).pipe(
-                        take(1),
-                        tap(snapshot => console.log(`Stock obtenido de Firestore para ${product.name}:`, snapshot.docs.map(doc => doc.data()))),
-                        map(snapshot => {
-                            if (snapshot.empty) {
-                                console.warn(`Stock no encontrado para: ${product.name} en la categoría ${product.category}`);
-                                return { product, availableStock: 0, isAvailable: false, stockDocId: null };
-                            }
-    
-                            // Obtener el primer documento encontrado
-                            const stockDoc = snapshot.docs[0]; // Documento Firestore
-                            const stockData = stockDoc.data();
-    
-                            return {
-                                product,
-                                availableStock: stockData['quantity'] || 0,
-                                isAvailable: stockData['available'] !== undefined ? stockData['available'] : false,
-                                stockDocId: stockDoc.id // Guardamos el ID del documento Firestore
-                            };
-                        })
-                    );
-                });
-    
-                return forkJoin<{ product: Product, availableStock: number, isAvailable: boolean, stockDocId: string | null }[]>(stockChecks$).pipe(
-                    switchMap((stockResults: { product: Product, availableStock: number, isAvailable: boolean, stockDocId: string | null }[]) => {
-                        // Filtrar productos sin stock suficiente o no disponibles
-                        const insufficientStock = stockResults.filter(({ product, availableStock, isAvailable }) =>
-                            Number(product.quantity) > Number(availableStock) || !isAvailable
-                        );
-    
-                        if (insufficientStock.length > 0) {
-                            const errorMessage = insufficientStock.map(({ product, availableStock, isAvailable }) => 
-                                `- ${product.name}: ${isAvailable ? `Stock disponible: ${availableStock}, solicitado: ${product.quantity}` : 'No disponible'}`
-                            ).join('\n');
-    
-                            // Mostrar alerta con el stock disponible
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Stock insuficiente',
-                                text: `Los siguientes productos no tienen suficiente stock:\n${errorMessage}`,
-                                confirmButtonText: 'Aceptar'
-                            });
-    
-                            // Retornar un error para que pueda ser manejado en el componente
-                            return throwError(() => new Error(`Stock insuficiente:\n${errorMessage}`));
-                        }
-    
-                        // Si hay stock suficiente, proceder con la creación del balance y actualizar el stock
-                        const batch = stockResults.map(({ product, availableStock, stockDocId }) => {
-                            if (!stockDocId) return null; // Si no hay ID del stock, no podemos actualizarlo
-    
-                            // Nueva cantidad de stock después de la reducción
-                            const newStockQuantity = availableStock - Number(product.quantity);
-                            const stockRef = doc(this.firestore, `stocks/${stockDocId}`);
-    
-                            // Actualizar la cantidad en Firestore
-                            const updateStock = updateDoc(stockRef, {
-                                quantity: newStockQuantity
-                            });
-    
-                            // Crear el registro en balance
-                            const balanceRef = doc(this.firestore, `balance/${id}_${product.id}`);
-                            const createBalance = setDoc(balanceRef, {
-                                balanceId: id,
-                                client: budget['client'],
-                                observation: budget['observation'],
-                                operator: budget['operator'],
-                                productName: product.name,
-                                quantity: Number(product.quantity),
-                                unitPrice: Number(product.price),
-                                totalPrice: Number(product.quantity) * Number(product.price),
-                                createdAt: budget['createdAt'],
-                                validity: budget['validity'],
-                                timestamp: new Date()
-                            });
-    
-                            return Promise.all([updateStock, createBalance]);
-                        }).filter(Boolean); // Filtramos los `null` en caso de que no haya stockDocId.
-    
-                        return from(Promise.all(batch)).pipe(
-                            switchMap(() => from(deleteDoc(confirmedBudgetRef)))
-                        );
-                    })
+                const balanceRef = doc(this.firestore, `balance/${id}`);
+                return from(setDoc(balanceRef, {
+                    balanceId: id,
+                    client: budget['client'],
+                    observation: budget['observation'],
+                    operator: budget['operator'],
+                    finalPrice: budget['finalPrice'],
+                    createdAt: budget['createdAt'],
+                    validity: budget['validity'],
+                    timestamp: new Date()
+                })).pipe(
+                    switchMap(() => from(deleteDoc(confirmedBudgetRef)))
                 );
             }),
             catchError(error => {
-                console.error('Error en confirmBudgetAndCreateBalance:', error);
+                console.error('Error in confirmBudgetAndCreateBalance:', error);
                 return throwError(() => error);
             })
         );
     }
-    
 }
