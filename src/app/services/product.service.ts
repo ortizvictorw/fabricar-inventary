@@ -63,7 +63,8 @@ export class ProductService {
       name: product.name, 
       price: product.price, 
       available: product.available, 
-      category: product.category 
+      category: product.category,
+      description: product.description
     });
   }
 }
