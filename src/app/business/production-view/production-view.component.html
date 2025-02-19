@@ -11,12 +11,16 @@
                 <thead>
                     <tr class="bg-gray-100">
                         <th class="border border-gray-300 px-4 py-2 text-left">Producto</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">description</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Categoría</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Cantidad</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let product of budget.products">
                         <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ product.description }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ product.category }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ product.quantity }}</td>
                     </tr>
                 </tbody>
